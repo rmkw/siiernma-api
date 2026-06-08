@@ -1,0 +1,42 @@
+# Maven
+target/
+*.war
+*.jar
+*.ear
+*.class
+
+# NetBeans
+/nbproject/private/
+/build/
+/dist/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+.nb-gradle/
+nbactions.xml
+
+# IDEs
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local configuration / secrets
+.env
+*.local
+application.properties
+src\main\resources\application.example.properties
+
+# Optional generated config backups
+*.bak
+*.tmp
