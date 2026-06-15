@@ -8,6 +8,7 @@ package mx.org.inegi.sistemacaptura.repository.variables;
  *
  * @author LUIS.CASTANEDAL
  */
+
 import java.util.List;
 import mx.org.inegi.sistemacaptura.entity.variables.variables_enty;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,8 @@ public interface variables_repo extends JpaRepository<variables_enty, String> {
 
     List<variables_enty> findByIdFuente(String idFuente);
 
-    List<variables_enty> findByIdFuenteInOrderByIdFuenteDescIdAAsc(List<String> idFuentes);
+    List<variables_enty> findByIdFuenteInOrderByIdFuenteDescIdAAsc(
+            List<String> idFuentes);
 
     Long countByIdFuente(String idFuente);
 

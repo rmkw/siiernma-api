@@ -8,6 +8,7 @@ package mx.org.inegi.sistemacaptura.entity.variables;
  *
  * @author LUIS.CASTANEDAL
  */
+
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +18,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "variables", schema = "seleccion")
 public class variables_enty {
+
     @Id
     @Column(name = "id_a", nullable = false)
     private String idA;
