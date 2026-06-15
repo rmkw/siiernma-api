@@ -25,6 +25,12 @@
         <jackson.version>2.17.3</jackson.version>
         <postgresql.version>42.7.4</postgresql.version>
     </properties>
+    <developers>
+		<developer>
+			<name>Ing. Luis Gerardo Castañeda López</name>
+			<email>rmkwz@icloud.com</email>
+		</developer>
+	</developers>
 
     <dependencies>
 
