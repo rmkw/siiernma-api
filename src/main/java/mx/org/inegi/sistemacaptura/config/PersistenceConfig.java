@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "mx.org.inegi.sistemacaptura.repository")
+@EnableJpaRepositories(basePackages = "mx.org.inegi.sistemacaptura")
 public class PersistenceConfig implements EnvironmentAware {
 
     private Environment environment;
@@ -57,7 +57,7 @@ public class PersistenceConfig implements EnvironmentAware {
                 new LocalContainerEntityManagerFactoryBean();
 
         factory.setDataSource(dataSource);
-        factory.setPackagesToScan("mx.org.inegi.sistemacaptura.entity");
+        factory.setPackagesToScan("mx.org.inegi.sistemacaptura");
         factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         factory.setJpaProperties(hibernateProperties());
 
