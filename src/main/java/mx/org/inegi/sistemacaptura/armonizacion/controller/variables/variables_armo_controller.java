@@ -10,6 +10,7 @@ package mx.org.inegi.sistemacaptura.armonizacion.controller.variables;
  */
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.service.variables.variables_armo_service;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,6 +33,13 @@ public class variables_armo_controller {
 
     @Autowired
     private variables_armo_service variablesArmoService;
+
+    @GetMapping("/por-fuente")
+    public ResponseEntity<List<variables_armo_dto>> obtenerPorIdFuente(
+            @RequestParam String idFuente) {
+        return ResponseEntity.ok(
+                variablesArmoService.obtenerPorIdFuente(idFuente));
+    }
 
     @GetMapping("/{idA}")
     public ResponseEntity<?> obtenerPorIdA(@PathVariable String idA) {

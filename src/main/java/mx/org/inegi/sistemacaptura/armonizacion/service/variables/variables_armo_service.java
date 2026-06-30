@@ -9,12 +9,15 @@ package mx.org.inegi.sistemacaptura.armonizacion.service.variables;
  * @author LUIS.CASTANEDAL
  */
 
+import java.util.List;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
 
 public interface variables_armo_service {
 
     Optional<variables_armo_dto> obtenerPorIdA(String idA);
+
+    List<variables_armo_dto> obtenerPorIdFuente(String idFuente);
 
     boolean existePorIdA(String idA);
 

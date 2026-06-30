@@ -10,6 +10,8 @@ package mx.org.inegi.sistemacaptura.armonizacion.service.variables;
  */
 
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_enty;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
@@ -25,6 +27,14 @@ public class variables_armo_service_impl implements variables_armo_service {
     @Override
     public Optional<variables_armo_dto> obtenerPorIdA(String idA) {
         return variablesArmoRepo.findById(idA).map(this::convertirA_DTO);
+    }
+
+    @Override
+    public List<variables_armo_dto> obtenerPorIdFuente(String idFuente) {
+        return variablesArmoRepo.findByIdFuenteOrderByIdAAsc(idFuente)
+                .stream()
+                .map(this::convertirA_DTO)
+                .collect(Collectors.toList());
     }
 
     @Override

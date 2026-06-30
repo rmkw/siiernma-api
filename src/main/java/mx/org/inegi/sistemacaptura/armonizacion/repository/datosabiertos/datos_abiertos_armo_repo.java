@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package mx.org.inegi.sistemacaptura.armonizacion.repository.variables;
+package mx.org.inegi.sistemacaptura.armonizacion.repository.datosabiertos;
 
 /**
  *
@@ -10,13 +10,13 @@ package mx.org.inegi.sistemacaptura.armonizacion.repository.variables;
  */
 
 import java.util.List;
-import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_enty;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.datosabiertos.datos_abiertos_armo_enty;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface variables_armo_repo
-        extends JpaRepository<variables_armo_enty, String> {
+public interface datos_abiertos_armo_repo
+        extends JpaRepository<datos_abiertos_armo_enty, Integer> {
 
-    List<variables_armo_enty> findByIdFuenteOrderByIdAAsc(String idFuente);
+    List<datos_abiertos_armo_enty> findByIdAOrderByIdUniqueAsc(String idA);
 }
