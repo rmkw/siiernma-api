@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_busqueda_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_detalle_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.service.variables.variables_armo_service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,6 +43,32 @@ public class variables_armo_controller {
                 variablesArmoService.obtenerPorIdFuente(idFuente));
     }
 
+    @GetMapping("/buscar")
+    public ResponseEntity<?> buscarPorIdONombre(
+            @RequestParam String termino) {
+        try {
+            List<variables_busqueda_armo_dto> variables
+                    = variablesArmoService.buscarPorIdONombre(termino);
+            return ResponseEntity.ok(variables);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al buscar variables: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/proceso/{acronimo}")
+    public ResponseEntity<?> obtenerPorProceso(
+            @PathVariable String acronimo) {
+        try {
+            return ResponseEntity.ok(
+                    variablesArmoService.obtenerPorProceso(acronimo));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al consultar variables por proceso: "
+                            + e.getMessage());
+        }
+    }
+
     @GetMapping("/{idA}")
     public ResponseEntity<?> obtenerPorIdA(@PathVariable String idA) {
         Optional<variables_armo_dto> variable =
@@ -52,6 +80,12 @@ public class variables_armo_controller {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("No existe la variable en armonizacion con id_a: " + idA);
+    }
+
+    @GetMapping("/{idA}/detalle")
+    public ResponseEntity<variables_detalle_armo_dto> obtenerDetallePorIdA(
+            @PathVariable String idA) {
+        return ResponseEntity.ok(variablesArmoService.obtenerDetallePorIdA(idA));
     }
 
     @GetMapping("/existe/{idA}")

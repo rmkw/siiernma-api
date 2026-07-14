@@ -14,9 +14,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_enty;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_busqueda_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_detalle_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.service.clasificaciones.clasificaciones_armo_service;
+import mx.org.inegi.sistemacaptura.armonizacion.service.datosabiertos.datos_abiertos_armo_service;
+import mx.org.inegi.sistemacaptura.armonizacion.service.microdatos.microdatos_armo_service;
+import mx.org.inegi.sistemacaptura.armonizacion.service.variables_tabulados.variables_tabulados_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
+import mx.org.inegi.sistemacaptura.repository.mdea.produccion.mdea_repo;
+import mx.org.inegi.sistemacaptura.repository.ods.produccion.ods_repo;
+import mx.org.inegi.sistemacaptura.repository.pertinencias.pertinencia_repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Service
 public class variables_armo_service_impl implements variables_armo_service {
@@ -24,9 +35,43 @@ public class variables_armo_service_impl implements variables_armo_service {
     @Autowired
     private variables_armo_repo variablesArmoRepo;
 
+    @Autowired
+    private clasificaciones_armo_service clasificacionesService;
+    @Autowired
+    private microdatos_armo_service microdatosService;
+    @Autowired
+    private datos_abiertos_armo_service datosAbiertosService;
+    @Autowired
+    private variables_tabulados_armo_service variablesTabuladosService;
+    @Autowired
+    private mdea_repo mdeaRepository;
+    @Autowired
+    private ods_repo odsRepository;
+    @Autowired
+    private pertinencia_repo pertinenciaRepository;
+
     @Override
     public Optional<variables_armo_dto> obtenerPorIdA(String idA) {
         return variablesArmoRepo.findById(idA).map(this::convertirA_DTO);
+    }
+
+    @Override
+    public variables_detalle_armo_dto obtenerDetallePorIdA(String idA) {
+        variables_armo_dto variable = obtenerPorIdA(idA).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "No existe la variable en armonizacion con id_a: " + idA));
+
+        variables_detalle_armo_dto detalle = new variables_detalle_armo_dto();
+        detalle.setVariable(variable);
+        detalle.setClasificaciones(clasificacionesService.obtenerPorIdA(idA));
+        detalle.setMicrodatos(microdatosService.obtenerPorIdA(idA));
+        detalle.setDatosAbiertos(datosAbiertosService.obtenerPorIdA(idA));
+        detalle.setTabulados(variablesTabuladosService.obtenerPorVariable(idA));
+        detalle.setMdeas(mdeaRepository.findByIdA(idA));
+        detalle.setOdsList(odsRepository.findByIdA(idA));
+        detalle.setPertinencia(
+                pertinenciaRepository.findByIdA(idA).orElse(null));
+        return detalle;
     }
 
     @Override
@@ -34,6 +79,38 @@ public class variables_armo_service_impl implements variables_armo_service {
         return variablesArmoRepo.findByIdFuenteOrderByIdAAsc(idFuente)
                 .stream()
                 .map(this::convertirA_DTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<variables_busqueda_armo_dto> buscarPorIdONombre(
+            String termino) {
+        if (termino == null || termino.trim().length() < 2) {
+            throw new RuntimeException(
+                    "El término debe tener al menos 2 caracteres");
+        }
+        return variablesArmoRepo.buscarPorIdONombre(termino.trim())
+                .stream()
+                .map(variable -> new variables_busqueda_armo_dto(
+                variable.getIdA(),
+                variable.getVariableA(),
+                variable.getVariableS()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<variables_busqueda_armo_dto> obtenerPorProceso(
+            String acronimo) {
+        if (acronimo == null || acronimo.trim().isEmpty()) {
+            throw new RuntimeException("El acrónimo es obligatorio");
+        }
+        return variablesArmoRepo
+                .findByAcronimoOrderByIdAAsc(acronimo.trim().toUpperCase())
+                .stream()
+                .map(variable -> new variables_busqueda_armo_dto(
+                variable.getIdA(),
+                variable.getVariableA(),
+                variable.getVariableS()))
                 .collect(Collectors.toList());
     }
 

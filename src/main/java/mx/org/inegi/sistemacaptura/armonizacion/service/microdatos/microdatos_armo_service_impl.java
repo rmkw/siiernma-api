@@ -37,6 +37,20 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
                     + dto.getIdA());
         }
 
+        if (microdatosArmoRepo.contarDuplicados(
+                dto.getIdA(),
+                dto.getUrlAcceso(),
+                dto.getDescriptor(),
+                dto.getUrlDescriptor(),
+                dto.getTabla(),
+                dto.getCampo(),
+                dto.getComentarioA()) > 0) {
+            throw new RuntimeException(
+                    "Este microdato ya está registrado para la variable. "
+                    + "Modifica al menos uno de sus campos antes de "
+                    + "intentarlo nuevamente.");
+        }
+
         microdatos_armo_enty entity = convertirA_Entity(dto);
         entity.setIdUnique(null);
 

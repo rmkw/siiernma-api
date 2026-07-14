@@ -37,6 +37,19 @@ public class tabulados_armo_controller {
         }
     }
 
+    @GetMapping("/proceso/{acronimo}")
+    public ResponseEntity<?> obtenerPorProceso(
+            @PathVariable String acronimo) {
+        try {
+            return ResponseEntity.ok(
+                    tabuladosArmoService.obtenerPorProceso(acronimo));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al consultar tabulados por proceso: "
+                            + e.getMessage());
+        }
+    }
+
     @GetMapping("/{idTabulado}")
     public ResponseEntity<?> obtenerPorId(
             @PathVariable String idTabulado) {

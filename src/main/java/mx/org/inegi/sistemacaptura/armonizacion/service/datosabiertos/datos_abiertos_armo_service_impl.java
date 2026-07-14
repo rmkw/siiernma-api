@@ -39,6 +39,20 @@ public class datos_abiertos_armo_service_impl
                     + dto.getIdA());
         }
 
+        if (datosAbiertosArmoRepo.contarDuplicados(
+                dto.getIdA(),
+                dto.getUrlAcceso(),
+                dto.getUrlDescarga(),
+                dto.getDescriptor(),
+                dto.getTabla(),
+                dto.getCampo(),
+                dto.getComentarioA()) > 0) {
+            throw new RuntimeException(
+                    "Este dato abierto ya está registrado para la variable. "
+                    + "Modifica al menos uno de sus campos antes de "
+                    + "intentarlo nuevamente.");
+        }
+
         datos_abiertos_armo_enty entity = convertirA_Entity(dto);
         entity.setIdUnique(null);
 

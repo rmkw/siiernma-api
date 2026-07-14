@@ -9,6 +9,7 @@ package mx.org.inegi.sistemacaptura.armonizacion.repository.fuentes;
  * @author LUIS.CASTANEDAL
  */
 
+import java.util.List;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuentes_armo_enty;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,6 +27,8 @@ public interface fuentes_armo_repository
     Optional<fuentes_armo_enty> findByIdFuenteSeleccion(String idFuenteSeleccion);
 
     boolean existsByIdFuenteSeleccion(String idFuenteSeleccion);
+
+    List<fuentes_armo_enty> findByAcronimoOrderByFuenteAsc(String acronimo);
 
     @Modifying
     @Query(value = "INSERT INTO armonizacion.fuentes "

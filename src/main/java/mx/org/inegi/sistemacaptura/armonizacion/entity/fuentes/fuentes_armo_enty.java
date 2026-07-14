@@ -13,6 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "fuentes", schema = "armonizacion")
@@ -42,6 +43,9 @@ public class fuentes_armo_enty {
 
     @Column(name = "comentario_a")
     private String comentarioA;
+
+    @Transient
+    private boolean reutilizada;
 
     public String getIdFuenteSeleccion() {
         return idFuenteSeleccion;
@@ -105,5 +109,13 @@ public class fuentes_armo_enty {
 
     public void setComentarioA(String comentarioA) {
         this.comentarioA = comentarioA;
+    }
+
+    public boolean isReutilizada() {
+        return reutilizada;
+    }
+
+    public void setReutilizada(boolean reutilizada) {
+        this.reutilizada = reutilizada;
     }
 }

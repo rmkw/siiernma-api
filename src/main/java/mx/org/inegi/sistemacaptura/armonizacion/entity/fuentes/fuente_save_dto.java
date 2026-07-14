@@ -18,6 +18,7 @@ public class fuente_save_dto {
     private String edicion;
     private String comentarioS;
     private String comentarioA;
+    private String idFuenteSeleccionOrigen;
 
     public String getIdFuenteSeleccion() {
         return idFuenteSeleccion;
@@ -73,5 +74,13 @@ public class fuente_save_dto {
 
     public void setComentarioA(String comentarioA) {
         this.comentarioA = comentarioA;
+    }
+
+    public String getIdFuenteSeleccionOrigen() {
+        return idFuenteSeleccionOrigen;
+    }
+
+    public void setIdFuenteSeleccionOrigen(String idFuenteSeleccionOrigen) {
+        this.idFuenteSeleccionOrigen = idFuenteSeleccionOrigen;
     }
 }

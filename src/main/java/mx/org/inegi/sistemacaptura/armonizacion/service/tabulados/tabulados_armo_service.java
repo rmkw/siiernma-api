@@ -8,6 +8,8 @@ public interface tabulados_armo_service {
 
     List<tabulados_armo_dto> buscarPorPrefijo(String prefijo);
 
+    List<tabulados_armo_dto> obtenerPorProceso(String acronimo);
+
     Optional<tabulados_armo_dto> obtenerPorId(String idTabulado);
 
     tabulados_armo_dto guardarTabulado(tabulados_armo_dto dto);

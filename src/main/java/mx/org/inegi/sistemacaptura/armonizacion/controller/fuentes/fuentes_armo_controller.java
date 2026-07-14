@@ -10,6 +10,7 @@ package mx.org.inegi.sistemacaptura.armonizacion.controller.fuentes;
  */
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuente_save_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuentes_armo_enty;
@@ -17,6 +18,7 @@ import mx.org.inegi.sistemacaptura.armonizacion.service.fuentes.fuentes_armo_ser
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +41,29 @@ public class fuentes_armo_controller {
     @ResponseStatus(HttpStatus.CREATED)
     public fuentes_armo_enty createFuente(@RequestBody fuente_save_dto dto) {
         return service.createFuente(dto);
+    }
+
+    @GetMapping("/by-id")
+    public fuentes_armo_enty getFuenteByIdParam(@RequestParam String idFuente) {
+        return service.getFuenteById(idFuente)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Fuente no encontrada"));
+    }
+
+    @GetMapping("/count-variables")
+    public Map<String, Long> countVariablesByIdFuente(@RequestParam String idFuente) {
+        Map<String, Long> response = new HashMap<String, Long>();
+        response.put("total", service.countVariablesByIdFuente(idFuente));
+        return response;
+    }
+
+    @DeleteMapping("/by-id")
+    public Map<String, String> deleteFuenteByIdFuente(@RequestParam String idFuente) {
+        service.deleteFuenteByIdFuente(idFuente);
+        Map<String, String> response = new HashMap<String, String>();
+        response.put("message", "Fuente eliminada correctamente");
+        return response;
     }
 
     @GetMapping("/{idFuente}")
@@ -100,5 +125,11 @@ public class fuentes_armo_controller {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Fuente no encontrada por idFuenteSeleccion"));
+    }
+
+    @GetMapping("/by-acronimo")
+    public List<fuentes_armo_enty> getFuentesByAcronimo(
+            @RequestParam String acronimo) {
+        return service.getFuentesByAcronimo(acronimo);
     }
 }

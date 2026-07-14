@@ -9,10 +9,12 @@ package mx.org.inegi.sistemacaptura.armonizacion.service.fuentes;
  * @author LUIS.CASTANEDAL
  */
 
+import java.util.List;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuente_save_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuentes_armo_enty;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.fuentes.fuentes_armo_repository;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
 import mx.org.inegi.sistemacaptura.repository.procesos.procesos_repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,9 @@ public class fuentes_armo_service {
 
     @Autowired
     private procesos_repo procesosRepo;
+
+    @Autowired
+    private variables_armo_repo variablesArmoRepo;
 
     @Transactional
     public fuentes_armo_enty createFuente(fuente_save_dto dto) {
@@ -51,16 +56,47 @@ public class fuentes_armo_service {
                     "idFuenteSeleccion es obligatorio");
         }
 
-        if (repository.existsByIdFuenteSeleccion(idFuenteSeleccion)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "La fuente de seleccion ya esta vinculada en armonizacion");
+        Optional<fuentes_armo_enty> fuentePorSeleccion =
+                repository.findByIdFuenteSeleccion(idFuenteSeleccion);
+        if (fuentePorSeleccion.isPresent()) {
+            fuentes_armo_enty fuenteExistente = fuentePorSeleccion.get();
+            if (idFuente.equals(fuenteExistente.getIdFuente())) {
+                return fuenteExistente;
+            }
+
+            if (esIdFuenteSeleccionPorVariable(idFuenteSeleccion)) {
+                Optional<fuentes_armo_enty> fuenteCanonica =
+                        repository.findByIdFuente(idFuente);
+                if (fuenteCanonica.isPresent()) {
+                    fuentes_armo_enty fuenteReutilizada = fuenteCanonica.get();
+                    fuenteReutilizada.setReutilizada(true);
+                    return fuenteReutilizada;
+                }
+
+                repository.updateFuenteByIdFuenteSeleccion(
+                        acronimo,
+                        fuente,
+                        url,
+                        edicion,
+                        comentarioS,
+                        comentarioA,
+                        idFuenteSeleccion);
+
+                return repository.findByIdFuenteSeleccion(idFuenteSeleccion)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "La fuente se actualizo pero no pudo recuperarse"));
+            }
+
+            return fuenteExistente;
         }
 
-        if (repository.existsByIdFuente(idFuente)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "La fuente ya existe en armonizacion");
+        Optional<fuentes_armo_enty> fuenteCanonica =
+                repository.findByIdFuente(idFuente);
+        if (fuenteCanonica.isPresent()) {
+            fuentes_armo_enty fuenteExistente = fuenteCanonica.get();
+            fuenteExistente.setReutilizada(true);
+            return fuenteExistente;
         }
 
         repository.insertFuente(
@@ -95,6 +131,45 @@ public class fuentes_armo_service {
         return repository.findByIdFuenteSeleccion(idFuenteSeleccion);
     }
 
+    public List<fuentes_armo_enty> getFuentesByAcronimo(String acronimo) {
+        String acronimoLimpio = normalizarTexto(acronimo);
+        if (acronimoLimpio == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El acronimo es obligatorio");
+        }
+
+        return repository.findByAcronimoOrderByFuenteAsc(acronimoLimpio);
+    }
+
+    public long countVariablesByIdFuente(String idFuente) {
+        String idFuenteLimpio = normalizarTexto(idFuente);
+        if (idFuenteLimpio == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "idFuente es obligatorio");
+        }
+
+        return variablesArmoRepo.countByIdFuente(idFuenteLimpio);
+    }
+
+    @Transactional
+    public void deleteFuenteByIdFuente(String idFuente) {
+        String idFuenteLimpio = normalizarTexto(idFuente);
+        if (idFuenteLimpio == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "idFuente es obligatorio");
+        }
+
+        fuentes_armo_enty fuente = repository.findByIdFuente(idFuenteLimpio)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Fuente no encontrada en armonizacion"));
+
+        repository.delete(fuente);
+    }
+
     @Transactional
     public fuentes_armo_enty updateFuente(fuente_save_dto dto) {
         validarDto(dto);
@@ -108,11 +183,22 @@ public class fuentes_armo_service {
         String comentarioS = normalizarTexto(dto.getComentarioS());
         String comentarioA = normalizarTexto(dto.getComentarioA());
         String idFuenteSeleccion = normalizarTexto(dto.getIdFuenteSeleccion());
+        String idFuente = construirIdFuente(acronimo, fuente, edicion, url);
 
         if (idFuenteSeleccion == null || idFuenteSeleccion.trim().isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "idFuenteSeleccion es obligatorio para actualizar");
+        }
+
+        Optional<fuentes_armo_enty> fuenteCanonica =
+                repository.findByIdFuente(idFuente);
+        if (fuenteCanonica.isPresent()
+                && !idFuenteSeleccion.equals(
+                        fuenteCanonica.get().getIdFuenteSeleccion())) {
+            fuentes_armo_enty fuenteExistente = fuenteCanonica.get();
+            fuenteExistente.setReutilizada(true);
+            return fuenteExistente;
         }
 
         int updated = repository.updateFuenteByIdFuenteSeleccion(
@@ -219,6 +305,10 @@ public class fuentes_armo_service {
 
         String limpio = valor.trim();
         return limpio.isEmpty() ? null : limpio;
+    }
+
+    private boolean esIdFuenteSeleccionPorVariable(String idFuenteSeleccion) {
+        return idFuenteSeleccion != null && idFuenteSeleccion.contains("::");
     }
 
     private void validarAcronimoExisteEnProcesos(String acronimo) {

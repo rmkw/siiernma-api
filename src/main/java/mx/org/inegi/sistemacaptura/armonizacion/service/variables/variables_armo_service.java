@@ -12,12 +12,20 @@ package mx.org.inegi.sistemacaptura.armonizacion.service.variables;
 import java.util.List;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_busqueda_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_detalle_armo_dto;
 
 public interface variables_armo_service {
 
     Optional<variables_armo_dto> obtenerPorIdA(String idA);
 
+    variables_detalle_armo_dto obtenerDetallePorIdA(String idA);
+
     List<variables_armo_dto> obtenerPorIdFuente(String idFuente);
+
+    List<variables_busqueda_armo_dto> buscarPorIdONombre(String termino);
+
+    List<variables_busqueda_armo_dto> obtenerPorProceso(String acronimo);
 
     boolean existePorIdA(String idA);
 

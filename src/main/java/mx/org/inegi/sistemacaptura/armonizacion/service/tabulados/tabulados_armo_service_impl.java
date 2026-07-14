@@ -33,6 +33,19 @@ public class tabulados_armo_service_impl implements tabulados_armo_service {
     }
 
     @Override
+    public List<tabulados_armo_dto> obtenerPorProceso(String acronimo) {
+        if (acronimo == null || acronimo.trim().isEmpty()) {
+            throw new RuntimeException("El acrónimo es obligatorio");
+        }
+        String prefijo = acronimo.trim().toUpperCase() + "-";
+        return tabuladosArmoRepo
+                .findByIdTabuladoStartingWithOrderByIdTabuladoAsc(prefijo)
+                .stream()
+                .map(this::convertirA_DTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<tabulados_armo_dto> obtenerPorId(String idTabulado) {
         return tabuladosArmoRepo.findById(idTabulado)
                 .map(this::convertirA_DTO);
