@@ -91,6 +91,9 @@ public class variables_armo_enty {
     @Column(name = "comentario_a")
     private String comentarioA;
 
+    @Column(name = "validada", nullable = false)
+    private Boolean validada;
+
     public variables_armo_enty() {
     }
 
@@ -100,7 +103,8 @@ public class variables_armo_enty {
             Integer anioReferencia, String tematica, String tema1,
             String subtema1, String tema2, String subtema2, Boolean tabulados,
             Boolean clasificacion, String microdatos, Boolean datosabiertos,
-            Boolean mdea, Boolean ods, String comentarioS, String comentarioA) {
+            Boolean mdea, Boolean ods, String comentarioS, String comentarioA,
+            Boolean validada) {
         this.idA = idA;
         this.idFuente = idFuente;
         this.acronimo = acronimo;
@@ -125,6 +129,7 @@ public class variables_armo_enty {
         this.ods = ods;
         this.comentarioS = comentarioS;
         this.comentarioA = comentarioA;
+        this.validada = validada;
     }
 
     public String getIdA() { return idA; }
@@ -198,4 +203,7 @@ public class variables_armo_enty {
 
     public String getComentarioA() { return comentarioA; }
     public void setComentarioA(String comentarioA) { this.comentarioA = comentarioA; }
+
+    public Boolean getValidada() { return validada; }
+    public void setValidada(Boolean validada) { this.validada = validada; }
 }

@@ -75,6 +75,16 @@ public class variables_armo_service_impl implements variables_armo_service {
     }
 
     @Override
+    public variables_armo_dto actualizarValidacion(String idA, Boolean validada) {
+        variables_armo_enty variable = variablesArmoRepo.findById(idA)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "No existe la variable en armonizacion con id_a: " + idA));
+
+        variable.setValidada(validada);
+        return convertirA_DTO(variablesArmoRepo.save(variable));
+    }
+
+    @Override
     public List<variables_armo_dto> obtenerPorIdFuente(String idFuente) {
         return variablesArmoRepo.findByIdFuenteOrderByIdAAsc(idFuente)
                 .stream()
@@ -121,6 +131,9 @@ public class variables_armo_service_impl implements variables_armo_service {
 
     @Override
     public variables_armo_dto guardarVariable(variables_armo_dto dto) {
+        if (dto.getValidada() == null) {
+            dto.setValidada(false);
+        }
         variables_armo_enty entity = convertirA_Entity(dto);
         variables_armo_enty guardada = variablesArmoRepo.save(entity);
         return convertirA_DTO(guardada);
@@ -199,7 +212,8 @@ public class variables_armo_service_impl implements variables_armo_service {
                 entity.getMdea(),
                 entity.getOds(),
                 entity.getComentarioS(),
-                entity.getComentarioA());
+                entity.getComentarioA(),
+                entity.getValidada());
     }
 
     private variables_armo_enty convertirA_Entity(variables_armo_dto dto) {
@@ -227,6 +241,7 @@ public class variables_armo_service_impl implements variables_armo_service {
                 dto.getMdea(),
                 dto.getOds(),
                 dto.getComentarioS(),
-                dto.getComentarioA());
+                dto.getComentarioA(),
+                dto.getValidada());
     }
 }

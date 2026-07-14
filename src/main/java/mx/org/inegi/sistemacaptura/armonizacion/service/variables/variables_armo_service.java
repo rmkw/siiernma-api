@@ -21,6 +21,8 @@ public interface variables_armo_service {
 
     variables_detalle_armo_dto obtenerDetallePorIdA(String idA);
 
+    variables_armo_dto actualizarValidacion(String idA, Boolean validada);
+
     List<variables_armo_dto> obtenerPorIdFuente(String idFuente);
 
     List<variables_busqueda_armo_dto> buscarPorIdONombre(String termino);

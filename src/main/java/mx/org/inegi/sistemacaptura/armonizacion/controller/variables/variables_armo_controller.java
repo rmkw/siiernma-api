@@ -15,6 +15,7 @@ import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_busqueda_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_detalle_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.validacion_variable_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.service.variables.variables_armo_service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -86,6 +87,19 @@ public class variables_armo_controller {
     public ResponseEntity<variables_detalle_armo_dto> obtenerDetallePorIdA(
             @PathVariable String idA) {
         return ResponseEntity.ok(variablesArmoService.obtenerDetallePorIdA(idA));
+    }
+
+    @PutMapping("/{idA}/validacion")
+    public ResponseEntity<?> validarVariable(
+            @PathVariable String idA,
+            @RequestBody validacion_variable_dto dto) {
+        if (dto.getValidada() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("El estado de validacion es obligatorio");
+        }
+
+        return ResponseEntity.ok(variablesArmoService
+                .actualizarValidacion(idA, dto.getValidada()));
     }
 
     @GetMapping("/existe/{idA}")
