@@ -16,9 +16,14 @@ import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_enty;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_busqueda_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_detalle_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.tabulados.tabulado_detalle_armo_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables_tabulados.variables_tabulados_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.service.clasificaciones.clasificaciones_armo_service;
+import mx.org.inegi.sistemacaptura.armonizacion.service.desagregaciones.desagregaciones_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.service.datosabiertos.datos_abiertos_armo_service;
+import mx.org.inegi.sistemacaptura.armonizacion.service.desgloses.desgloses_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.service.microdatos.microdatos_armo_service;
+import mx.org.inegi.sistemacaptura.armonizacion.service.tabulados.tabulados_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.service.variables_tabulados.variables_tabulados_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
 import mx.org.inegi.sistemacaptura.repository.mdea.produccion.mdea_repo;
@@ -44,6 +49,12 @@ public class variables_armo_service_impl implements variables_armo_service {
     @Autowired
     private variables_tabulados_armo_service variablesTabuladosService;
     @Autowired
+    private tabulados_armo_service tabuladosService;
+    @Autowired
+    private desgloses_armo_service desglosesService;
+    @Autowired
+    private desagregaciones_armo_service desagregacionesService;
+    @Autowired
     private mdea_repo mdeaRepository;
     @Autowired
     private ods_repo odsRepository;
@@ -66,11 +77,30 @@ public class variables_armo_service_impl implements variables_armo_service {
         detalle.setClasificaciones(clasificacionesService.obtenerPorIdA(idA));
         detalle.setMicrodatos(microdatosService.obtenerPorIdA(idA));
         detalle.setDatosAbiertos(datosAbiertosService.obtenerPorIdA(idA));
-        detalle.setTabulados(variablesTabuladosService.obtenerPorVariable(idA));
+        detalle.setTabulados(variablesTabuladosService.obtenerPorVariable(idA)
+                .stream()
+                .map(this::construirDetalleTabulado)
+                .collect(Collectors.toList()));
         detalle.setMdeas(mdeaRepository.findByIdA(idA));
         detalle.setOdsList(odsRepository.findByIdA(idA));
         detalle.setPertinencia(
                 pertinenciaRepository.findByIdA(idA).orElse(null));
+        return detalle;
+    }
+
+    private tabulado_detalle_armo_dto construirDetalleTabulado(
+            variables_tabulados_armo_dto relacion) {
+        tabulado_detalle_armo_dto detalle = new tabulado_detalle_armo_dto();
+        detalle.setIdUnique(relacion.getIdUnique());
+        detalle.setIdA(relacion.getIdA());
+        detalle.setIdTabulado(relacion.getIdTabulado());
+        detalle.setComentarioRelacion(relacion.getComentarioA());
+        detalle.setTabulado(tabuladosService.obtenerPorId(relacion.getIdTabulado())
+                .orElse(null));
+        detalle.setDesgloses(
+                desglosesService.obtenerPorTabulado(relacion.getIdTabulado()));
+        detalle.setDesagregaciones(desagregacionesService
+                .obtenerPorTabulado(relacion.getIdTabulado()));
         return detalle;
     }
 
