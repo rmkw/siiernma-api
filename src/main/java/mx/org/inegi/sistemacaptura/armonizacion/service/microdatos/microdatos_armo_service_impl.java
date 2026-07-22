@@ -60,6 +60,30 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
     }
 
     @Override
+    public microdatos_armo_dto actualizarMicrodato(Integer idUnique,
+            microdatos_armo_dto dto) {
+        validarMicrodato(dto);
+        microdatos_armo_enty existente = microdatosArmoRepo.findById(idUnique)
+                .orElseThrow(() -> new RuntimeException(
+                "No existe el microdato con id_unique: " + idUnique));
+
+        if (!existente.getIdA().equals(dto.getIdA())) {
+            throw new RuntimeException("No es posible cambiar la variable del microdato");
+        }
+
+        if (microdatosArmoRepo.contarDuplicadosExcluyendoId(idUnique,
+                dto.getIdA(), dto.getUrlAcceso(), dto.getDescriptor(),
+                dto.getUrlDescriptor(), dto.getTabla(), dto.getCampo(),
+                dto.getComentarioA()) > 0) {
+            throw new RuntimeException("Este microdato ya está registrado para la variable.");
+        }
+
+        microdatos_armo_enty actualizado = convertirA_Entity(dto);
+        actualizado.setIdUnique(idUnique);
+        return convertirA_DTO(microdatosArmoRepo.save(actualizado));
+    }
+
+    @Override
     public void eliminarMicrodato(Integer idUnique) {
         if (!microdatosArmoRepo.existsById(idUnique)) {
             throw new RuntimeException(

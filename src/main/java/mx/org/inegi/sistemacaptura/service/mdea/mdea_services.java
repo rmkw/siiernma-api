@@ -167,6 +167,9 @@ public class mdea_services {
 
     public List<mdea_traduccion_dto> getTablaByIdA(String idA) {
         List<mdea_enty> relaciones = repo_mdea.findByIdA(idA);
+        if (relaciones.isEmpty()) {
+            relaciones = repo_mdea.findArmonizacionByIdA(idA);
+        }
         List<mdea_traduccion_dto> respuesta = new ArrayList<mdea_traduccion_dto>();
 
         for (mdea_enty relacion : relaciones) {

@@ -16,6 +16,8 @@ public interface datos_abiertos_armo_service {
 
     datos_abiertos_armo_dto guardarDatoAbierto(datos_abiertos_armo_dto dto);
 
+    datos_abiertos_armo_dto actualizarDatoAbierto(Integer idUnique, datos_abiertos_armo_dto dto);
+
     void eliminarDatoAbierto(Integer idUnique);
 
     List<datos_abiertos_armo_dto> obtenerPorIdA(String idA);

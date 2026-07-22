@@ -117,6 +117,9 @@ public class ods_services {
 
     public List<ods_traduccion_dto> getTablaByIdA(String idA) {
         List<ods_enty> relaciones = repository.findByIdA(idA);
+        if (relaciones.isEmpty()) {
+            relaciones = repository.findArmonizacionByIdA(idA);
+        }
         List<ods_traduccion_dto> respuesta = new ArrayList<ods_traduccion_dto>();
 
         for (ods_enty relacion : relaciones) {

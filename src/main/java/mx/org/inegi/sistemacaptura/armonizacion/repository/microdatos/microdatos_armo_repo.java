@@ -39,4 +39,22 @@ public interface microdatos_armo_repo
             @Param("tabla") String tabla,
             @Param("campo") String campo,
             @Param("comentarioA") String comentarioA);
+
+    @Query("SELECT COUNT(m) FROM microdatos_armo_enty m "
+            + "WHERE m.idUnique <> :idUnique AND m.idA = :idA "
+            + "AND LOWER(TRIM(m.urlAcceso)) = LOWER(TRIM(:urlAcceso)) "
+            + "AND LOWER(TRIM(m.descriptor)) = LOWER(TRIM(:descriptor)) "
+            + "AND LOWER(TRIM(m.urlDescriptor)) = LOWER(TRIM(:urlDescriptor)) "
+            + "AND LOWER(TRIM(m.tabla)) = LOWER(TRIM(:tabla)) "
+            + "AND LOWER(TRIM(m.campo)) = LOWER(TRIM(:campo)) "
+            + "AND LOWER(TRIM(m.comentarioA)) = LOWER(TRIM(:comentarioA))")
+    long contarDuplicadosExcluyendoId(
+            @Param("idUnique") Integer idUnique,
+            @Param("idA") String idA,
+            @Param("urlAcceso") String urlAcceso,
+            @Param("descriptor") String descriptor,
+            @Param("urlDescriptor") String urlDescriptor,
+            @Param("tabla") String tabla,
+            @Param("campo") String campo,
+            @Param("comentarioA") String comentarioA);
 }

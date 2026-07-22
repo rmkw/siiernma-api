@@ -39,4 +39,22 @@ public interface datos_abiertos_armo_repo
             @Param("tabla") String tabla,
             @Param("campo") String campo,
             @Param("comentarioA") String comentarioA);
+
+    @Query("SELECT COUNT(d) FROM datos_abiertos_armo_enty d "
+            + "WHERE d.idUnique <> :idUnique AND d.idA = :idA "
+            + "AND LOWER(TRIM(d.urlAcceso)) = LOWER(TRIM(:urlAcceso)) "
+            + "AND LOWER(TRIM(d.urlDescarga)) = LOWER(TRIM(:urlDescarga)) "
+            + "AND LOWER(TRIM(d.descriptor)) = LOWER(TRIM(:descriptor)) "
+            + "AND LOWER(TRIM(d.tabla)) = LOWER(TRIM(:tabla)) "
+            + "AND LOWER(TRIM(d.campo)) = LOWER(TRIM(:campo)) "
+            + "AND LOWER(TRIM(d.comentarioA)) = LOWER(TRIM(:comentarioA))")
+    long contarDuplicadosExcluyendoId(
+            @Param("idUnique") Integer idUnique,
+            @Param("idA") String idA,
+            @Param("urlAcceso") String urlAcceso,
+            @Param("urlDescarga") String urlDescarga,
+            @Param("descriptor") String descriptor,
+            @Param("tabla") String tabla,
+            @Param("campo") String campo,
+            @Param("comentarioA") String comentarioA);
 }

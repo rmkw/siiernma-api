@@ -81,10 +81,10 @@ public class variables_armo_service_impl implements variables_armo_service {
                 .stream()
                 .map(this::construirDetalleTabulado)
                 .collect(Collectors.toList()));
-        detalle.setMdeas(mdeaRepository.findByIdA(idA));
-        detalle.setOdsList(odsRepository.findByIdA(idA));
+        detalle.setMdeas(mdeaRepository.findArmonizacionByIdA(idA));
+        detalle.setOdsList(odsRepository.findArmonizacionByIdA(idA));
         detalle.setPertinencia(
-                pertinenciaRepository.findByIdA(idA).orElse(null));
+                pertinenciaRepository.findArmonizacionByIdA(idA).orElse(null));
         return detalle;
     }
 

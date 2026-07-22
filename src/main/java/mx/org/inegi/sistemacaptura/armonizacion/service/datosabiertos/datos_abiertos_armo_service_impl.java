@@ -63,6 +63,30 @@ public class datos_abiertos_armo_service_impl
     }
 
     @Override
+    public datos_abiertos_armo_dto actualizarDatoAbierto(Integer idUnique,
+            datos_abiertos_armo_dto dto) {
+        validarDatoAbierto(dto);
+        datos_abiertos_armo_enty existente = datosAbiertosArmoRepo.findById(idUnique)
+                .orElseThrow(() -> new RuntimeException(
+                "No existe el dato abierto con id_unique: " + idUnique));
+
+        if (!existente.getIdA().equals(dto.getIdA())) {
+            throw new RuntimeException("No es posible cambiar la variable del dato abierto");
+        }
+
+        if (datosAbiertosArmoRepo.contarDuplicadosExcluyendoId(idUnique,
+                dto.getIdA(), dto.getUrlAcceso(), dto.getUrlDescarga(),
+                dto.getDescriptor(), dto.getTabla(), dto.getCampo(),
+                dto.getComentarioA()) > 0) {
+            throw new RuntimeException("Este dato abierto ya está registrado para la variable.");
+        }
+
+        datos_abiertos_armo_enty actualizado = convertirA_Entity(dto);
+        actualizado.setIdUnique(idUnique);
+        return convertirA_DTO(datosAbiertosArmoRepo.save(actualizado));
+    }
+
+    @Override
     public void eliminarDatoAbierto(Integer idUnique) {
         if (!datosAbiertosArmoRepo.existsById(idUnique)) {
             throw new RuntimeException(
