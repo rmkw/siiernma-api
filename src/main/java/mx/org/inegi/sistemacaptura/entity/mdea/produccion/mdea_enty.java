@@ -12,7 +12,7 @@ package mx.org.inegi.sistemacaptura.entity.mdea.produccion;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "mdea", schema = "seleccion")
+@Table(name = "mdea_s", schema = "public")
 public class mdea_enty {
 
     @Id

@@ -16,7 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "variables", schema = "seleccion")
+@Table(name = "variables_s", schema = "public")
 public class variables_enty {
 
     @Id

@@ -14,7 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "procesos", schema = "seleccion")
+@Table(name = "procesos_s", schema = "public")
 public class procesos_enty {
     @Id
     @Column(name = "acronimo", nullable = false)

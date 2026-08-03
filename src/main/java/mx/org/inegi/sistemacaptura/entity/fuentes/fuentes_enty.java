@@ -14,7 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "fuentes", schema = "seleccion")
+@Table(name = "fuentes_s", schema = "public")
 public class fuentes_enty {
     @Id
     @Column(name = "id_fuente_seleccion", nullable = false)

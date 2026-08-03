@@ -17,7 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ods", schema = "seleccion")
+@Table(name = "ods_s", schema = "public")
 public class ods_enty {
 
     @Id
