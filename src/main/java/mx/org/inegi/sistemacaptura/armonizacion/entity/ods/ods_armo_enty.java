@@ -1,0 +1,51 @@
+package mx.org.inegi.sistemacaptura.armonizacion.entity.ods;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "ods_a", schema = "public")
+public class ods_armo_enty {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_unique")
+    private Integer idUnique;
+
+    @Column(name = "id_a", nullable = false)
+    private String idA;
+
+    @Column(name = "objetivo", nullable = false)
+    private String objetivo;
+
+    @Column(name = "meta", nullable = false)
+    private String meta;
+
+    @Column(name = "indicador", nullable = false)
+    private String indicador;
+
+    @Column(name = "contribucion", nullable = false)
+    private String contribucion;
+
+    @Column(name = "comentario_s", nullable = false)
+    private String comentarioS;
+
+    public Integer getIdUnique() { return idUnique; }
+    public void setIdUnique(Integer idUnique) { this.idUnique = idUnique; }
+    public String getIdA() { return idA; }
+    public void setIdA(String idA) { this.idA = idA; }
+    public String getObjetivo() { return objetivo; }
+    public void setObjetivo(String objetivo) { this.objetivo = objetivo; }
+    public String getMeta() { return meta; }
+    public void setMeta(String meta) { this.meta = meta; }
+    public String getIndicador() { return indicador; }
+    public void setIndicador(String indicador) { this.indicador = indicador; }
+    public String getContribucion() { return contribucion; }
+    public void setContribucion(String contribucion) { this.contribucion = contribucion; }
+    public String getComentarioS() { return comentarioS; }
+    public void setComentarioS(String comentarioS) { this.comentarioS = comentarioS; }
+}

@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "fuentes", schema = "armonizacion")
+@Table(name = "fuentes_a", schema = "public")
 public class fuentes_armo_enty {
 
     @Id

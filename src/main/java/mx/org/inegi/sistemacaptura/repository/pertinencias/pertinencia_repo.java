@@ -20,7 +20,7 @@ public interface pertinencia_repo extends JpaRepository<pertinencia_enty, Intege
 
     @Query(value = "SELECT id_unique, id_a, CAST('' AS text) AS id_s, pertinencia, "
             + "contribucion, viabilidad, propuesta, comentario_s "
-            + "FROM armonizacion.pertinencia WHERE id_a = :idA", nativeQuery = true)
+            + "FROM public.pertinencia_a WHERE id_a = :idA", nativeQuery = true)
     Optional<pertinencia_enty> findArmonizacionByIdA(@Param("idA") String idA);
 
     void deleteByIdA(String idA);

@@ -31,7 +31,7 @@ public interface fuentes_armo_repository
     List<fuentes_armo_enty> findByAcronimoOrderByFuenteAsc(String acronimo);
 
     @Modifying
-    @Query(value = "INSERT INTO armonizacion.fuentes "
+    @Query(value = "INSERT INTO public.fuentes_a "
             + "(acronimo, fuente, url, edicion, comentario_s, comentario_a, id_fuente_seleccion) "
             + "VALUES (:acronimo, :fuente, :url, :edicion, :comentarioS, :comentarioA, :idFuenteSeleccion)",
             nativeQuery = true)
@@ -45,7 +45,7 @@ public interface fuentes_armo_repository
             @Param("idFuenteSeleccion") String idFuenteSeleccion);
 
     @Modifying
-    @Query(value = "UPDATE armonizacion.fuentes "
+    @Query(value = "UPDATE public.fuentes_a "
             + "SET acronimo = :acronimo, "
             + "fuente = :fuente, "
             + "url = :url, "

@@ -15,7 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "variables", schema = "armonizacion")
+@Table(name = "variables_a", schema = "public")
 public class variables_armo_enty {
 
     @Id

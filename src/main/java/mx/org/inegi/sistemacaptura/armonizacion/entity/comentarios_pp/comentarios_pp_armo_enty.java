@@ -15,7 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "comentarios_pp", schema = "armonizacion")
+@Table(name = "comentarios_pp_a", schema = "public")
 public class comentarios_pp_armo_enty {
 
     @Id

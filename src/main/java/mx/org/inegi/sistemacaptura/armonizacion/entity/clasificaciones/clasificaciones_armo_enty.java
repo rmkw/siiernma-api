@@ -17,7 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "clasificaciones", schema = "armonizacion")
+@Table(name = "clasificaciones_a", schema = "public")
 public class clasificaciones_armo_enty {
 
     @Id

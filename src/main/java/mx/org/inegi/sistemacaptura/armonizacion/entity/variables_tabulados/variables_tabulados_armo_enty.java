@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "variables_tabulados", schema = "armonizacion")
+@Table(name = "variables_tabulados_a", schema = "public")
 public class variables_tabulados_armo_enty {
 
     @Id

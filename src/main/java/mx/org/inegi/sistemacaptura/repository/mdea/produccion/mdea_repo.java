@@ -21,7 +21,7 @@ public interface mdea_repo extends JpaRepository<mdea_enty, Integer> {
 
     @Query(value = "SELECT id_unique, id_a, CAST('' AS text) AS id_s, componente, "
             + "subcomponente, tema, estadistica1, estadistica2, contribucion, "
-            + "comentario_s FROM armonizacion.mdea WHERE id_a = :idA", nativeQuery = true)
+            + "comentario_s FROM public.mdea_a WHERE id_a = :idA", nativeQuery = true)
     List<mdea_enty> findArmonizacionByIdA(@Param("idA") String idA);
     void deleteByIdA(String idA);
 

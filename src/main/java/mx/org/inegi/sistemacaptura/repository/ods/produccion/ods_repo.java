@@ -23,7 +23,7 @@ public interface ods_repo extends JpaRepository<ods_enty, Integer> {
     List<ods_enty> findByIdS(String idS);
 
     @Query(value = "SELECT id_unique, id_a, CAST('' AS text) AS id_s, objetivo, meta, "
-            + "indicador, contribucion, comentario_s FROM armonizacion.ods "
+            + "indicador, contribucion, comentario_s FROM public.ods_a "
             + "WHERE id_a = :idA", nativeQuery = true)
     List<ods_enty> findArmonizacionByIdA(@Param("idA") String idA);
 

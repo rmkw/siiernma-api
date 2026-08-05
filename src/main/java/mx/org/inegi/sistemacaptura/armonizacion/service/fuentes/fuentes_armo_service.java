@@ -14,8 +14,8 @@ import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuente_save_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuentes_armo_enty;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.fuentes.fuentes_armo_repository;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.procesos.procesos_armo_repo;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
-import mx.org.inegi.sistemacaptura.repository.procesos.procesos_repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class fuentes_armo_service {
     private fuentes_armo_repository repository;
 
     @Autowired
-    private procesos_repo procesosRepo;
+    private procesos_armo_repo procesosRepo;
 
     @Autowired
     private variables_armo_repo variablesArmoRepo;
