@@ -97,6 +97,13 @@
             <version>${jackson.version}</version>
         </dependency>
 
+        <!-- Serializacion de LocalDateTime en respuestas JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
         <!-- Validaciones: @NotNull, @NotBlank, etc. con javax -->
         <dependency>
             <groupId>javax.validation</groupId>

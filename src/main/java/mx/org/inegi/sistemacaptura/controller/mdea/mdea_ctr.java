@@ -131,4 +131,10 @@ public class mdea_ctr {
     public List<mdea_traduccion_dto> getTablaPorIdA(@PathVariable String idA) {
         return service.getTablaByIdA(idA);
     }
+
+    @GetMapping("/tabla-seleccion/{idA}")
+    public List<mdea_traduccion_dto> getTablaSeleccionPorIdA(
+            @PathVariable String idA) {
+        return service.getTablaSeleccionByIdA(idA);
+    }
 }

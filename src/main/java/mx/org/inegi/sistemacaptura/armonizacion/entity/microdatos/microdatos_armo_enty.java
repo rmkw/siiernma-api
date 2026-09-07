@@ -46,12 +46,16 @@ public class microdatos_armo_enty {
     @Column(name = "comentario_a", nullable = false)
     private String comentarioA;
 
+    @Column(name = "laboratorio", nullable = false)
+    private Boolean laboratorio;
+
     public microdatos_armo_enty() {
     }
 
     public microdatos_armo_enty(Integer idUnique, String idA,
             String urlAcceso, String descriptor, String urlDescriptor,
-            String tabla, String campo, String comentarioA) {
+            String tabla, String campo, String comentarioA,
+            Boolean laboratorio) {
         this.idUnique = idUnique;
         this.idA = idA;
         this.urlAcceso = urlAcceso;
@@ -60,6 +64,7 @@ public class microdatos_armo_enty {
         this.tabla = tabla;
         this.campo = campo;
         this.comentarioA = comentarioA;
+        this.laboratorio = laboratorio;
     }
 
     public Integer getIdUnique() {
@@ -124,5 +129,13 @@ public class microdatos_armo_enty {
 
     public void setComentarioA(String comentarioA) {
         this.comentarioA = comentarioA;
+    }
+
+    public Boolean getLaboratorio() {
+        return laboratorio;
+    }
+
+    public void setLaboratorio(Boolean laboratorio) {
+        this.laboratorio = laboratorio;
     }
 }

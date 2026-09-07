@@ -55,6 +55,7 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
         entity.setIdUnique(null);
 
         microdatos_armo_enty guardado = microdatosArmoRepo.save(entity);
+        actualizarBanderaMicrodatos(dto.getIdA(), true);
 
         return convertirA_DTO(guardado);
     }
@@ -85,12 +86,14 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
 
     @Override
     public void eliminarMicrodato(Integer idUnique) {
-        if (!microdatosArmoRepo.existsById(idUnique)) {
-            throw new RuntimeException(
-                    "No existe el microdato con id_unique: " + idUnique);
-        }
+        microdatos_armo_enty existente = microdatosArmoRepo.findById(idUnique)
+                .orElseThrow(() -> new RuntimeException(
+                "No existe el microdato con id_unique: " + idUnique));
 
-        microdatosArmoRepo.deleteById(idUnique);
+        microdatosArmoRepo.delete(existente);
+        microdatosArmoRepo.flush();
+        actualizarBanderaMicrodatos(existente.getIdA(),
+                microdatosArmoRepo.countByIdA(existente.getIdA()) > 0);
     }
 
     @Override
@@ -148,7 +151,8 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
                 entity.getUrlDescriptor(),
                 entity.getTabla(),
                 entity.getCampo(),
-                entity.getComentarioA());
+                entity.getComentarioA(),
+                entity.getLaboratorio());
     }
 
     private microdatos_armo_enty convertirA_Entity(microdatos_armo_dto dto) {
@@ -160,6 +164,14 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
                 dto.getUrlDescriptor(),
                 dto.getTabla(),
                 dto.getCampo(),
-                dto.getComentarioA());
+                dto.getComentarioA(),
+                Boolean.TRUE.equals(dto.getLaboratorio()));
+    }
+
+    private void actualizarBanderaMicrodatos(String idA, boolean microdatos) {
+        variablesArmoRepo.findById(idA).ifPresent(variable -> {
+            variable.setMicrodatos(microdatos);
+            variablesArmoRepo.save(variable);
+        });
     }
 }

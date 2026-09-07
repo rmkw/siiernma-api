@@ -82,6 +82,12 @@ public class ods_ctr {
         return service.getTablaByIdA(idA);
     }
 
+    @GetMapping("/tabla-seleccion/{idA}")
+    public List<ods_traduccion_dto> getTablaSeleccionPorIdA(
+            @PathVariable String idA) {
+        return service.getTablaSeleccionByIdA(idA);
+    }
+
     @GetMapping("/{idA}")
     public List<ods_enty> obtenerPorIdA(@PathVariable String idA) {
         return service.getByIdA(idA);

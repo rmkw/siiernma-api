@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import mx.org.inegi.sistemacaptura.entity.usuario.usuario_enty;
+import mx.org.inegi.sistemacaptura.entity.usuario.usuario_admin_dto;
 import mx.org.inegi.sistemacaptura.service.usuario.usuario_services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class usuario_ctr {
 
             Map<String, Object> response = new HashMap<String, Object>();
             response.put("mensaje", "Usuario registrado exitosamente");
-            response.put("usuario", nuevoUsuario);
+            response.put("usuario", service.toDto(nuevoUsuario));
 
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
@@ -52,14 +53,14 @@ public class usuario_ctr {
     }
 
     @GetMapping
-    public ResponseEntity<List<usuario_enty>> getAllUsuarios() {
-        List<usuario_enty> usuarios = service.getAllUsuarios();
+    public ResponseEntity<List<usuario_admin_dto>> getAllUsuarios() {
+        List<usuario_admin_dto> usuarios = service.getAllUsuarios();
         return ResponseEntity.ok(usuarios);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<usuario_enty> getUsuarioById(@PathVariable Long id) {
-        usuario_enty usuario = service.getUsuarioById(id);
+    public ResponseEntity<usuario_admin_dto> getUsuarioById(@PathVariable Long id) {
+        usuario_admin_dto usuario = service.getUsuarioById(id);
 
         if (usuario != null) {
             return ResponseEntity.ok(usuario);

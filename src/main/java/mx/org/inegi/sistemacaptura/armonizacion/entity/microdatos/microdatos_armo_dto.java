@@ -19,13 +19,15 @@ public class microdatos_armo_dto {
     private String tabla;
     private String campo;
     private String comentarioA;
+    private Boolean laboratorio;
 
     public microdatos_armo_dto() {
     }
 
     public microdatos_armo_dto(Integer idUnique, String idA,
             String urlAcceso, String descriptor, String urlDescriptor,
-            String tabla, String campo, String comentarioA) {
+            String tabla, String campo, String comentarioA,
+            Boolean laboratorio) {
         this.idUnique = idUnique;
         this.idA = idA;
         this.urlAcceso = urlAcceso;
@@ -34,6 +36,7 @@ public class microdatos_armo_dto {
         this.tabla = tabla;
         this.campo = campo;
         this.comentarioA = comentarioA;
+        this.laboratorio = laboratorio;
     }
 
     public Integer getIdUnique() {
@@ -98,5 +101,13 @@ public class microdatos_armo_dto {
 
     public void setComentarioA(String comentarioA) {
         this.comentarioA = comentarioA;
+    }
+
+    public Boolean getLaboratorio() {
+        return laboratorio;
+    }
+
+    public void setLaboratorio(Boolean laboratorio) {
+        this.laboratorio = laboratorio;
     }
 }

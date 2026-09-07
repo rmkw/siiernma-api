@@ -11,8 +11,10 @@
 package mx.org.inegi.sistemacaptura.service.usuario;
 
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import mx.org.inegi.sistemacaptura.entity.usuario.usuario_admin_dto;
 import mx.org.inegi.sistemacaptura.entity.usuario.usuario_enty;
 import mx.org.inegi.sistemacaptura.repository.usuario.usuario_repo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +30,17 @@ public class usuario_services {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public List<usuario_enty> getAllUsuarios() {
-        return repo.findAll();
+    public List<usuario_admin_dto> getAllUsuarios() {
+        List<usuario_admin_dto> respuesta = new ArrayList<usuario_admin_dto>();
+        for (usuario_enty usuario : repo.findAll()) {
+            respuesta.add(toDto(usuario));
+        }
+        return respuesta;
     }
 
-    public usuario_enty getUsuarioById(Long id) {
-        return repo.findById(id).orElse(null);
+    public usuario_admin_dto getUsuarioById(Long id) {
+        usuario_enty usuario = repo.findById(id).orElse(null);
+        return usuario == null ? null : toDto(usuario);
     }
 
     public usuario_enty registrarUsuario(usuario_enty usuario) {
@@ -43,14 +50,18 @@ public class usuario_services {
 
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
 
-        Set<String> roles = usuario.getRoles();
-        if (roles == null) {
-            roles = new HashSet<String>();
-        }
-
+        Set<String> roles = new HashSet<String>();
         roles.add("USER");
         usuario.setRoles(roles);
 
         return repo.save(usuario);
+    }
+
+    public usuario_admin_dto toDto(usuario_enty usuario) {
+        Set<String> roles = usuario.getRoles() == null
+                ? new HashSet<String>()
+                : new HashSet<String>(usuario.getRoles());
+        return new usuario_admin_dto(
+                usuario.getId(), usuario.getNombre(), usuario.getAka(), roles);
     }
 }

@@ -34,6 +34,17 @@ public class variables_tabulados_armo_controller {
         }
     }
 
+    @GetMapping("/variable/{idA}")
+    public ResponseEntity<?> obtenerPorVariable(@PathVariable String idA) {
+        try {
+            return ResponseEntity.ok(service.obtenerPorVariable(idA));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al consultar las relaciones: "
+                            + e.getMessage());
+        }
+    }
+
     @GetMapping("/{idUnique}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Integer idUnique) {
         Optional<variables_tabulados_armo_dto> relacion

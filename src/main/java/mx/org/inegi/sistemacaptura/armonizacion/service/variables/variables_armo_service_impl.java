@@ -23,6 +23,7 @@ import mx.org.inegi.sistemacaptura.armonizacion.service.desagregaciones.desagreg
 import mx.org.inegi.sistemacaptura.armonizacion.service.datosabiertos.datos_abiertos_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.service.desgloses.desgloses_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.service.microdatos.microdatos_armo_service;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.microdatos.microdatos_armo_repo;
 import mx.org.inegi.sistemacaptura.armonizacion.service.tabulados.tabulados_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.service.variables_tabulados.variables_tabulados_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
@@ -44,6 +45,9 @@ public class variables_armo_service_impl implements variables_armo_service {
     private clasificaciones_armo_service clasificacionesService;
     @Autowired
     private microdatos_armo_service microdatosService;
+
+    @Autowired
+    private microdatos_armo_repo microdatosRepo;
     @Autowired
     private datos_abiertos_armo_service datosAbiertosService;
     @Autowired
@@ -164,6 +168,7 @@ public class variables_armo_service_impl implements variables_armo_service {
         if (dto.getValidada() == null) {
             dto.setValidada(false);
         }
+        dto.setMicrodatos(false);
         variables_armo_enty entity = convertirA_Entity(dto);
         variables_armo_enty guardada = variablesArmoRepo.save(entity);
         return convertirA_DTO(guardada);
@@ -192,7 +197,7 @@ public class variables_armo_service_impl implements variables_armo_service {
         existente.setSubtema2(dto.getSubtema2());
         existente.setTabulados(dto.getTabulados());
         existente.setClasificacion(dto.getClasificacion());
-        existente.setMicrodatos(dto.getMicrodatos());
+        existente.setMicrodatos(microdatosRepo.existsByIdA(idA));
         existente.setDatosabiertos(dto.getDatosabiertos());
         existente.setMdea(dto.getMdea());
         existente.setOds(dto.getOds());

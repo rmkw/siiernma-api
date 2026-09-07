@@ -48,6 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/mdea/**",
                         "/api/ods/**",
                         "/api/procesos-locales/**",
+                        "/api/admin-usuarios/**",
                         "/api/usuarios/**",
                         "/api/catalog/**",
                         "/api/unidad/**",

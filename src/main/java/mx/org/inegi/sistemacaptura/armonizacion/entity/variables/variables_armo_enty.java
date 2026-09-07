@@ -74,7 +74,7 @@ public class variables_armo_enty {
     private Boolean clasificacion;
 
     @Column(name = "microdatos")
-    private String microdatos;
+    private Boolean microdatos;
 
     @Column(name = "datosabiertos")
     private Boolean datosabiertos;
@@ -102,7 +102,7 @@ public class variables_armo_enty {
             String pregunta, String definicion, String universo,
             Integer anioReferencia, String tematica, String tema1,
             String subtema1, String tema2, String subtema2, Boolean tabulados,
-            Boolean clasificacion, String microdatos, Boolean datosabiertos,
+            Boolean clasificacion, Boolean microdatos, Boolean datosabiertos,
             Boolean mdea, Boolean ods, String comentarioS, String comentarioA,
             Boolean validada) {
         this.idA = idA;
@@ -186,8 +186,8 @@ public class variables_armo_enty {
     public Boolean getClasificacion() { return clasificacion; }
     public void setClasificacion(Boolean clasificacion) { this.clasificacion = clasificacion; }
 
-    public String getMicrodatos() { return microdatos; }
-    public void setMicrodatos(String microdatos) { this.microdatos = microdatos; }
+    public Boolean getMicrodatos() { return microdatos; }
+    public void setMicrodatos(Boolean microdatos) { this.microdatos = microdatos; }
 
     public Boolean getDatosabiertos() { return datosabiertos; }
     public void setDatosabiertos(Boolean datosabiertos) { this.datosabiertos = datosabiertos; }

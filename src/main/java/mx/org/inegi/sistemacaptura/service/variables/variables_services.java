@@ -12,21 +12,26 @@ package mx.org.inegi.sistemacaptura.service.variables;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import mx.org.inegi.sistemacaptura.entity.fuentes.fuentes_enty;
 import mx.org.inegi.sistemacaptura.entity.mdea.produccion.mdea_enty;
 import mx.org.inegi.sistemacaptura.entity.mdea.produccion.mdea_traduccion_dto;
 import mx.org.inegi.sistemacaptura.entity.ods.produccion.ods_enty;
 import mx.org.inegi.sistemacaptura.entity.ods.produccion.ods_traduccion_dto;
 import mx.org.inegi.sistemacaptura.entity.pertinencias.pertinencia_enty;
 import mx.org.inegi.sistemacaptura.entity.variables.variable_revision_masiva_update_dto;
+import mx.org.inegi.sistemacaptura.entity.variables.variable_movimiento_fuente_dto;
 import mx.org.inegi.sistemacaptura.entity.variables.variable_revision_prioridad_dto;
 import mx.org.inegi.sistemacaptura.entity.variables.variable_revision_update_dto;
 import mx.org.inegi.sistemacaptura.entity.variables.variable_tabla_dto;
 import mx.org.inegi.sistemacaptura.entity.variables.variables_enty;
 import mx.org.inegi.sistemacaptura.entity.variables.variables_relacion_dto;
 import mx.org.inegi.sistemacaptura.repository.mdea.catalogo.cat_componente_repo;
+import mx.org.inegi.sistemacaptura.repository.fuentes.fuentes_repo;
 import mx.org.inegi.sistemacaptura.repository.mdea.catalogo.cat_estadistico1_repo;
 import mx.org.inegi.sistemacaptura.repository.mdea.catalogo.cat_estadistico2_repo;
 import mx.org.inegi.sistemacaptura.repository.mdea.catalogo.cat_subcomponente_repo;
@@ -51,6 +56,9 @@ public class variables_services {
 
     @Autowired
     private variables_repo repository;
+
+    @Autowired
+    private fuentes_repo fuentesRepository;
 
     @Autowired
     private mdea_repo mdeaRepository;
@@ -150,6 +158,99 @@ public class variables_services {
         }
 
         repository.deleteById(idA);
+    }
+
+    @Transactional
+    public Map<String, Object> moverVariablesDeFuente(
+            variable_movimiento_fuente_dto dto) {
+        if (dto == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Los datos del movimiento son obligatorios");
+        }
+
+        String origen = limpiarId(dto.getIdFuenteOrigen(), "La fuente origen es obligatoria");
+        String destino = limpiarId(dto.getIdFuenteDestino(), "La fuente destino es obligatoria");
+
+        if (origen.equals(destino)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "La fuente destino debe ser diferente de la fuente origen");
+        }
+
+        if (dto.getIdsVariables() == null || dto.getIdsVariables().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Debe seleccionar al menos una variable");
+        }
+
+        fuentes_enty fuenteOrigen = fuentesRepository.findById(origen)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "No existe la fuente origen " + origen));
+        fuentes_enty fuenteDestino = fuentesRepository.findById(destino)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "No existe la fuente destino " + destino));
+
+        if (!fuenteOrigen.getAcronimo().equals(fuenteDestino.getAcronimo())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Las fuentes origen y destino pertenecen a procesos de producción diferentes");
+        }
+
+        Set<String> idsUnicos = new LinkedHashSet<String>();
+        for (String idA : dto.getIdsVariables()) {
+            String idLimpio = limpiarId(idA, "Todos los identificadores de variables son obligatorios");
+            if (!idsUnicos.add(idLimpio)) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "La variable " + idLimpio + " está repetida en la solicitud");
+            }
+        }
+
+        List<variables_enty> variables = new ArrayList<variables_enty>();
+        for (String idA : idsUnicos) {
+            variables_enty variable = repository.findById(idA)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "No existe la variable " + idA));
+
+            if (!origen.equals(variable.getIdFuente())) {
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "La variable " + idA + " ya no pertenece a la fuente origen seleccionada");
+            }
+
+            if (!fuenteOrigen.getAcronimo().equals(variable.getAcronimo())) {
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "La variable " + idA + " no pertenece al proceso de producción de la fuente origen");
+            }
+
+            variables.add(variable);
+        }
+
+        for (variables_enty variable : variables) {
+            variable.setIdFuente(destino);
+        }
+
+        try {
+            repository.saveAll(variables);
+            repository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "No se movió ninguna variable porque el movimiento genera un conflicto de integridad en la fuente destino",
+                    e);
+        }
+
+        Map<String, Object> respuesta = new HashMap<String, Object>();
+        respuesta.put("totalMovidas", variables.size());
+        respuesta.put("idFuenteDestino", destino);
+        respuesta.put("message", variables.size() + " variable(s) movida(s) correctamente");
+        return respuesta;
+    }
+
+    private String limpiarId(String valor, String mensaje) {
+        if (valor == null || valor.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, mensaje);
+        }
+        return valor.trim();
     }
 
     public List<variables_relacion_dto> getWithRelationsByIdS(String idS) {

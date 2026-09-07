@@ -189,6 +189,8 @@ public class import_excel_service {
             }
 
             int filasConDatos = 0;
+            Set<String> relacionesArchivo = new HashSet<String>();
+            Set<String> idsARevisados = new HashSet<String>();
 
             for (int r = 1; r <= sheet.getLastRowNum(); r++) {
                 Row row = sheet.getRow(r);
@@ -204,48 +206,66 @@ public class import_excel_service {
                 String fuente = getByHeader(row, headerIndex, "fuente");
                 String edicion = getByHeader(row, headerIndex, "edicion");
                 String url = getByHeader(row, headerIndex, "url");
+                String urlVariable = getByHeader(row, headerIndex, "urlVariable");
                 String nombre = getByHeader(row, headerIndex, "nombre");
 
-                if (isBlank(idS)) {
-                    errors.add(new import_excel_error_fila_dto(
-                            r + 1,
-                            "id_s",
-                            "id_s esta vacio."));
+                for (String header : REQUIRED_HEADERS) {
+                    if (isBlank(getByHeader(row, headerIndex, header))) {
+                        errors.add(new import_excel_error_fila_dto(
+                                r + 1,
+                                header,
+                                "Fila " + (r + 1) + ", columna " + header
+                                + ": el campo esta vacio. Utiliza '-' cuando no aplique."));
+                    }
                 }
 
-                if (isBlank(acronimo)) {
-                    errors.add(new import_excel_error_fila_dto(
-                            r + 1,
-                            "acronimo",
-                            "acronimo esta vacio."));
+                if (!isBlank(edicion) && !edicion.matches("\\d{4}(/\\d{4})?")) {
+                    addInvalidValueError(errors, r + 1, "edicion", edicion,
+                            "utiliza un año como 2026 o un periodo como 2010/2011");
                 }
 
-                if (isBlank(nombre)) {
-                    errors.add(new import_excel_error_fila_dto(
-                            r + 1,
-                            "nombre",
-                            "nombre esta vacio."));
+                Boolean flagMdea = validateBooleanValue(
+                        getByHeader(row, headerIndex, "mdea"), r + 1, "mdea", errors);
+                Boolean flagOds = validateBooleanValue(
+                        getByHeader(row, headerIndex, "ods"), r + 1, "ods", errors);
+
+                validateContribution(row, headerIndex, r + 1, "contribucionMdea", errors);
+                validateContribution(row, headerIndex, r + 1, "contribucionOds", errors);
+                validateContribution(row, headerIndex, r + 1, "contribucionPertinencia", errors);
+
+                validateUrl(url, r + 1, "url", errors);
+                validateUrl(urlVariable, r + 1, "urlVariable", errors);
+
+                if (!isBlank(idS) && !isBlank(acronimo)
+                        && !idS.toLowerCase().startsWith(acronimo.toLowerCase() + "-")) {
+                    addInvalidValueError(errors, r + 1, "id_s", idS,
+                            "debe comenzar con el acronimo '" + acronimo + "-'");
                 }
 
-                if (isBlank(fuente)) {
-                    errors.add(new import_excel_error_fila_dto(
-                            r + 1,
-                            "fuente",
-                            "fuente esta vacio."));
-                }
+                if (!isBlank(idS) && !isBlank(edicion)) {
+                    String idA = buildIdA(idS, edicion);
 
-                if (isBlank(edicion)) {
-                    errors.add(new import_excel_error_fila_dto(
-                            r + 1,
-                            "edicion",
-                            "edicion esta vacio."));
-                }
+                    if (idsARevisados.add(normalize(idA))
+                            && variablesRepo.existsByIdA(idA)) {
+                        errors.add(new import_excel_error_fila_dto(
+                                r + 1,
+                                "id_s",
+                                "Fila " + (r + 1) + ": la variable '" + idA
+                                + "' ya esta registrada en la base de datos."));
+                    }
 
-                if (isBlank(url)) {
-                    errors.add(new import_excel_error_fila_dto(
-                            r + 1,
-                            "url",
-                            "url esta vacio."));
+                    if (flagMdea != null && flagOds != null) {
+                        String relationKey = buildRelationKey(
+                                row, headerIndex, idA, flagMdea, flagOds);
+
+                        if (!relacionesArchivo.add(relationKey)) {
+                            errors.add(new import_excel_error_fila_dto(
+                                    r + 1,
+                                    "id_s",
+                                    "Fila " + (r + 1) + ": la variable '" + idA
+                                    + "' repite exactamente la misma relacion MDEA y ODS."));
+                        }
+                    }
                 }
             }
 
@@ -501,7 +521,7 @@ public class import_excel_service {
 
                     pertinencia.setIdS(idS);
                     pertinencia.setPertinencia(pertinenciaTxt);
-                    pertinencia.setContribucion(isBlank(contribucionP) ? "" : contribucionP);
+                    pertinencia.setContribucion(normalizeContribution(contribucionP));
                     pertinencia.setViabilidad(isBlank(viabilidad) ? "" : viabilidad);
                     pertinencia.setPropuesta(isBlank(propuesta) ? "" : propuesta);
                     pertinencia.setComentarioS(isBlank(comentarioSP) ? "" : comentarioSP);
@@ -667,18 +687,14 @@ public class import_excel_service {
                         variablesRepo.save(data);
                         variablesInsertadas++;
                     } else {
-                        existente.setIdFuente(data.getIdFuente());
-                        existente.setIdS(data.getIdS());
-                        existente.setAcronimo(data.getAcronimo());
-                        existente.setNombre(data.getNombre());
-                        existente.setDefinicion(data.getDefinicion());
-                        existente.setUrl(data.getUrl());
-                        existente.setComentarioS(data.getComentarioS());
-                        existente.setMdea(data.getMdea());
-                        existente.setOds(data.getOds());
-
-                        variablesRepo.save(existente);
-                        variablesActualizadas++;
+                        errors.add(new import_excel_error_fila_dto(
+                                fila,
+                                "id_s",
+                                "La variable '" + idA
+                                + "' ya esta registrada en la base de datos."));
+                        throw new ImportExcelAbortException(
+                                "No se permiten actualizaciones de variables mediante importacion.",
+                                errors);
                     }
 
                 } catch (Exception ex) {
@@ -772,7 +788,7 @@ public class import_excel_service {
                         String estadistica2 = buildNumberCode(
                                 estadistica1,
                                 clean(blankToNull(getByHeader(row, headerIndex, "estadistica2"))));
-                        String contribucionMdea = clean(
+                        String contribucionMdea = normalizeContribution(
                                 blankToNull(getByHeader(row, headerIndex, "contribucionMdea")));
                         String comentarioSMdea = clean(
                                 blankToNull(getByHeader(row, headerIndex, "comentario_sMdea")));
@@ -838,7 +854,7 @@ public class import_excel_service {
                                 clean(blankToNull(getByHeader(row, headerIndex, "meta"))));
                         String indicador = extractTrailingCodeWithoutDotsOrDash(
                                 clean(blankToNull(getByHeader(row, headerIndex, "indicador"))));
-                        String contribucionOds = clean(
+                        String contribucionOds = normalizeContribution(
                                 blankToNull(getByHeader(row, headerIndex, "contribucionOds")));
                         String comentarioSOds = clean(
                                 blankToNull(getByHeader(row, headerIndex, "comentario_sOds")));
@@ -1000,6 +1016,129 @@ public class import_excel_service {
         return null;
     }
 
+    private Boolean validateBooleanValue(
+            String value,
+            int row,
+            String column,
+            List<import_excel_error_fila_dto> errors) {
+        if (isBlank(value)) {
+            return null;
+        }
+
+        Boolean parsed = parseBoolean(value);
+
+        if (parsed == null) {
+            addInvalidValueError(errors, row, column, value,
+                    "utiliza Si, No o una variante permitida");
+        }
+
+        return parsed;
+    }
+
+    private void validateContribution(
+            Row row,
+            Map<String, Integer> headerIndex,
+            int rowNumber,
+            String column,
+            List<import_excel_error_fila_dto> errors) {
+        String value = getByHeader(row, headerIndex, column);
+
+        if (!isBlank(value)
+                && !value.equals("-")
+                && !value.equalsIgnoreCase("alto")
+                && !value.equalsIgnoreCase("intermedio")
+                && !value.equalsIgnoreCase("bajo")) {
+            addInvalidValueError(errors, rowNumber, column, value,
+                    "los valores permitidos son Alto, Intermedio, Bajo o -");
+        }
+    }
+
+    private void validateUrl(
+            String value,
+            int row,
+            String column,
+            List<import_excel_error_fila_dto> errors) {
+        if (isBlank(value) || value.equals("-")) {
+            return;
+        }
+
+        try {
+            java.net.URI uri = new java.net.URI(value);
+            String scheme = uri.getScheme();
+
+            if (scheme == null
+                    || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))
+                    || isBlank(uri.getHost())) {
+                throw new IllegalArgumentException();
+            }
+        } catch (Exception ex) {
+            addInvalidValueError(errors, row, column, value,
+                    "utiliza una URL http://, https:// o -");
+        }
+    }
+
+    private String buildRelationKey(
+            Row row,
+            Map<String, Integer> headerIndex,
+            String idA,
+            Boolean flagMdea,
+            Boolean flagOds) {
+        List<String> parts = new ArrayList<String>();
+        parts.add(normalize(idA));
+        parts.add(Boolean.TRUE.equals(flagMdea) ? "mdea:true" : "mdea:false");
+
+        if (Boolean.TRUE.equals(flagMdea)) {
+            parts.add(normalize(getByHeader(row, headerIndex, "componente")));
+            parts.add(normalize(getByHeader(row, headerIndex, "subcomponente")));
+            parts.add(normalize(getByHeader(row, headerIndex, "tema")));
+            parts.add(normalize(getByHeader(row, headerIndex, "estadistica1")));
+            parts.add(normalize(getByHeader(row, headerIndex, "estadistica2")));
+        }
+
+        parts.add(Boolean.TRUE.equals(flagOds) ? "ods:true" : "ods:false");
+
+        if (Boolean.TRUE.equals(flagOds)) {
+            parts.add(normalize(getByHeader(row, headerIndex, "objetivo")));
+            parts.add(normalize(getByHeader(row, headerIndex, "meta")));
+            parts.add(normalize(getByHeader(row, headerIndex, "indicador")));
+        }
+
+        return String.join("|", parts);
+    }
+
+    private void addInvalidValueError(
+            List<import_excel_error_fila_dto> errors,
+            int row,
+            String column,
+            String value,
+            String reason) {
+        errors.add(new import_excel_error_fila_dto(
+                row,
+                column,
+                "Fila " + row + ", columna " + column + ": el valor '"
+                + value + "' no es valido; " + reason + "."));
+    }
+
+    private String normalizeContribution(String value) {
+        if (isBlank(value) || value.equals("-")) {
+            return isBlank(value) ? "" : "-";
+        }
+
+        if (value.equalsIgnoreCase("alto")) {
+            return "Alto";
+        }
+
+        if (value.equalsIgnoreCase("intermedio")) {
+            return "Intermedio";
+        }
+
+        if (value.equalsIgnoreCase("bajo")) {
+            return "Bajo";
+        }
+
+        return value.trim();
+    }
+
     private Map<String, Integer> buildHeaderIndex(Row headerRow) {
         Map<String, Integer> map = new HashMap<String, Integer>();
 
@@ -1049,7 +1188,7 @@ public class import_excel_service {
         CellType type = cell.getCellType();
 
         if (type == CellType.STRING) {
-            return cell.getStringCellValue().trim();
+            return sanitizeCellText(cell.getStringCellValue());
         }
 
         if (type == CellType.NUMERIC) {
@@ -1068,13 +1207,19 @@ public class import_excel_service {
 
         if (type == CellType.FORMULA) {
             try {
-                return cell.getStringCellValue().trim();
+                return sanitizeCellText(cell.getStringCellValue());
             } catch (Exception ex) {
                 return String.valueOf(cell.getNumericCellValue());
             }
         }
 
         return "";
+    }
+
+    private String sanitizeCellText(String value) {
+        return value == null
+                ? ""
+                : value.replaceAll("_x000D_\\r?\\n?", "\n").trim();
     }
 
     private boolean isBlank(String s) {

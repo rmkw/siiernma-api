@@ -11,7 +11,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tickets", schema = "usuarios")
+@Table(name = "tickets_a", schema = "public")
 public class tickets_variables_enty {
 
     @Id

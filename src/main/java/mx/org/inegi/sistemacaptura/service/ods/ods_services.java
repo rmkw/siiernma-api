@@ -120,6 +120,15 @@ public class ods_services {
         if (relaciones.isEmpty()) {
             relaciones = repository.findArmonizacionByIdA(idA);
         }
+        return traducirRelacionesOds(relaciones);
+    }
+
+    public List<ods_traduccion_dto> getTablaSeleccionByIdA(String idA) {
+        return traducirRelacionesOds(repository.findByIdA(idA));
+    }
+
+    private List<ods_traduccion_dto> traducirRelacionesOds(
+            List<ods_enty> relaciones) {
         List<ods_traduccion_dto> respuesta = new ArrayList<ods_traduccion_dto>();
 
         for (ods_enty relacion : relaciones) {

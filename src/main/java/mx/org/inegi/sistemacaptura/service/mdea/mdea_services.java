@@ -170,6 +170,15 @@ public class mdea_services {
         if (relaciones.isEmpty()) {
             relaciones = repo_mdea.findArmonizacionByIdA(idA);
         }
+        return traducirRelacionesMdea(relaciones);
+    }
+
+    public List<mdea_traduccion_dto> getTablaSeleccionByIdA(String idA) {
+        return traducirRelacionesMdea(repo_mdea.findByIdA(idA));
+    }
+
+    private List<mdea_traduccion_dto> traducirRelacionesMdea(
+            List<mdea_enty> relaciones) {
         List<mdea_traduccion_dto> respuesta = new ArrayList<mdea_traduccion_dto>();
 
         for (mdea_enty relacion : relaciones) {

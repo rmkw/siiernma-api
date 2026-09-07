@@ -22,6 +22,10 @@ public interface microdatos_armo_repo
 
     List<microdatos_armo_enty> findByIdAOrderByIdUniqueAsc(String idA);
 
+    long countByIdA(String idA);
+
+    boolean existsByIdA(String idA);
+
     @Query("SELECT COUNT(m) FROM microdatos_armo_enty m "
             + "WHERE m.idA = :idA "
             + "AND LOWER(TRIM(m.urlAcceso)) = LOWER(TRIM(:urlAcceso)) "

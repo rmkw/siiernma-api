@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import mx.org.inegi.sistemacaptura.entity.variables.variable_revision_masiva_update_dto;
+import mx.org.inegi.sistemacaptura.entity.variables.variable_movimiento_fuente_dto;
 import mx.org.inegi.sistemacaptura.entity.variables.variable_revision_prioridad_dto;
 import mx.org.inegi.sistemacaptura.entity.variables.variable_revision_update_dto;
 import mx.org.inegi.sistemacaptura.entity.variables.variable_tabla_dto;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -97,6 +99,18 @@ public class variables_ctr {
         Map<String, Object> result =
                 service.actualizarRevisionPrioridadMasiva(dto);
         return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/mover-fuente")
+    public ResponseEntity<Map<String, Object>> moverVariablesDeFuente(
+            @RequestBody variable_movimiento_fuente_dto dto) {
+        try {
+            return ResponseEntity.ok(service.moverVariablesDeFuente(dto));
+        } catch (ResponseStatusException e) {
+            Map<String, Object> error = new java.util.HashMap<String, Object>();
+            error.put("message", e.getReason());
+            return ResponseEntity.status(e.getStatus()).body(error);
+        }
     }
 
     @GetMapping("/por-fuentes-tabla")
