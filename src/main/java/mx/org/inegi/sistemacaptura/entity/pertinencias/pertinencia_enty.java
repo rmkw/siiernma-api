@@ -1,5 +1,7 @@
 package mx.org.inegi.sistemacaptura.entity.pertinencias;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "pertinencia_s", schema = "public")
+@Table(name = DatabaseTables.PERTINENCIA_S, schema = DatabaseTables.SELECCION)
 public class pertinencia_enty {
 
     @Id

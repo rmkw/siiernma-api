@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.entity.comentarios_pp;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -16,7 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "comentarios_pp_s", schema = "public")
+@Table(name = DatabaseTables.COMENTARIOS_PP_S, schema = DatabaseTables.SELECCION)
 public class comentarios_pp_seleccion_enty {
 
     @Id

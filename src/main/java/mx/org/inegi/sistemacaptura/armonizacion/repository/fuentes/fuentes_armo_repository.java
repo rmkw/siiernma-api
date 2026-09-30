@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.armonizacion.repository.fuentes;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -31,7 +33,7 @@ public interface fuentes_armo_repository
     List<fuentes_armo_enty> findByAcronimoOrderByFuenteAsc(String acronimo);
 
     @Modifying
-    @Query(value = "INSERT INTO public.fuentes_a "
+    @Query(value = "INSERT INTO " + DatabaseTables.FUENTES_A_SQL + " "
             + "(acronimo, fuente, url, edicion, comentario_s, comentario_a, id_fuente_seleccion) "
             + "VALUES (:acronimo, :fuente, :url, :edicion, :comentarioS, :comentarioA, :idFuenteSeleccion)",
             nativeQuery = true)
@@ -45,7 +47,7 @@ public interface fuentes_armo_repository
             @Param("idFuenteSeleccion") String idFuenteSeleccion);
 
     @Modifying
-    @Query(value = "UPDATE public.fuentes_a "
+    @Query(value = "UPDATE " + DatabaseTables.FUENTES_A_SQL + " "
             + "SET acronimo = :acronimo, "
             + "fuente = :fuente, "
             + "url = :url, "

@@ -144,9 +144,46 @@
     </dependencies>
 
     <build>
-        <finalName>siscapback</finalName>
+        <finalName>${deployment.war}</finalName>
+        <directory>target/${deployment.environment}</directory>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>database-tables</id>
+                        <phase>generate-sources</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated-sources/tables</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/table-templates</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>database-tables-source</id>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources><source>${project.build.directory}/generated-sources/tables</source></sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -164,9 +201,45 @@
                 <version>3.4.0</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/context-template</directory>
+                            <filtering>true</filtering>
+                            <targetPath>META-INF</targetPath>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>pruebas</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <properties>
+                <deployment.environment>pruebas</deployment.environment>
+                <deployment.war>siscapback</deployment.war>
+                <tables.seleccion.schema>public</tables.seleccion.schema>
+                <tables.seleccion.suffix>_s</tables.seleccion.suffix>
+                <tables.armonizacion.schema>public</tables.armonizacion.schema>
+                <tables.armonizacion.suffix>_a</tables.armonizacion.suffix>
+                <tables.tickets.schema>public</tables.tickets.schema>
+                <tables.tickets.name>tickets_a</tables.tickets.name>
+            </properties>
+        </profile>
+        <profile>
+            <id>produccion</id>
+            <properties>
+                <deployment.environment>produccion</deployment.environment>
+                <deployment.war>prodback</deployment.war>
+                <tables.seleccion.schema>seleccion</tables.seleccion.schema>
+                <tables.seleccion.suffix></tables.seleccion.suffix>
+                <tables.armonizacion.schema>armonizacion</tables.armonizacion.schema>
+                <tables.armonizacion.suffix></tables.armonizacion.suffix>
+                <tables.tickets.schema>usuarios</tables.tickets.schema>
+                <tables.tickets.name>tickets</tables.tickets.name>
+            </properties>
+        </profile>
+    </profiles>
 </project>

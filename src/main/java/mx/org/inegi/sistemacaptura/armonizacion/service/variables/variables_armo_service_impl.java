@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.armonizacion.service.variables;
 
+import mx.org.inegi.sistemacaptura.armonizacion.service.clasificadores.clasificadores_armo_service;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -44,6 +46,8 @@ public class variables_armo_service_impl implements variables_armo_service {
     @Autowired
     private clasificaciones_armo_service clasificacionesService;
     @Autowired
+    private clasificadores_armo_service clasificadoresService;
+    @Autowired
     private microdatos_armo_service microdatosService;
 
     @Autowired
@@ -79,6 +83,7 @@ public class variables_armo_service_impl implements variables_armo_service {
         variables_detalle_armo_dto detalle = new variables_detalle_armo_dto();
         detalle.setVariable(variable);
         detalle.setClasificaciones(clasificacionesService.obtenerPorIdA(idA));
+        detalle.setClasificadores(clasificadoresService.obtenerPorIdA(idA));
         detalle.setMicrodatos(microdatosService.obtenerPorIdA(idA));
         detalle.setDatosAbiertos(datosAbiertosService.obtenerPorIdA(idA));
         detalle.setTabulados(variablesTabuladosService.obtenerPorVariable(idA)
@@ -169,6 +174,7 @@ public class variables_armo_service_impl implements variables_armo_service {
             dto.setValidada(false);
         }
         dto.setMicrodatos(false);
+        dto.setClasificacion(variablesArmoRepo.tieneClasificacionOClasificador(dto.getIdA()));
         variables_armo_enty entity = convertirA_Entity(dto);
         variables_armo_enty guardada = variablesArmoRepo.save(entity);
         return convertirA_DTO(guardada);
@@ -196,7 +202,7 @@ public class variables_armo_service_impl implements variables_armo_service {
         existente.setTema2(dto.getTema2());
         existente.setSubtema2(dto.getSubtema2());
         existente.setTabulados(dto.getTabulados());
-        existente.setClasificacion(dto.getClasificacion());
+        existente.setClasificacion(variablesArmoRepo.tieneClasificacionOClasificador(idA));
         existente.setMicrodatos(microdatosRepo.existsByIdA(idA));
         existente.setDatosabiertos(dto.getDatosabiertos());
         existente.setMdea(dto.getMdea());

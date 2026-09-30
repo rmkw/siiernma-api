@@ -1,12 +1,14 @@
 package mx.org.inegi.sistemacaptura.armonizacion.entity.tabulados;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tabulados_a", schema = "public")
+@Table(name = DatabaseTables.TABULADOS_A, schema = DatabaseTables.ARMONIZACION)
 public class tabulados_armo_enty {
 
     @Id

@@ -1,5 +1,7 @@
 package mx.org.inegi.sistemacaptura.armonizacion.entity.ods;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ods_a", schema = "public")
+@Table(name = DatabaseTables.ODS_A, schema = DatabaseTables.ARMONIZACION)
 public class ods_armo_enty {
 
     @Id

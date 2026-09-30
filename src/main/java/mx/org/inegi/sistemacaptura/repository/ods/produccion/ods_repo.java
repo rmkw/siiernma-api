@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.repository.ods.produccion;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -23,7 +25,7 @@ public interface ods_repo extends JpaRepository<ods_enty, Integer> {
     List<ods_enty> findByIdS(String idS);
 
     @Query(value = "SELECT id_unique, id_a, CAST('' AS text) AS id_s, objetivo, meta, "
-            + "indicador, contribucion, comentario_s FROM public.ods_a "
+            + "indicador, contribucion, comentario_s FROM " + DatabaseTables.ODS_A_SQL + " "
             + "WHERE id_a = :idA", nativeQuery = true)
     List<ods_enty> findArmonizacionByIdA(@Param("idA") String idA);
 

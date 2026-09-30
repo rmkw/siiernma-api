@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -16,7 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "fuentes_a", schema = "public")
+@Table(name = DatabaseTables.FUENTES_A, schema = DatabaseTables.ARMONIZACION)
 public class fuentes_armo_enty {
 
     @Id

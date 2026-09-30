@@ -1,5 +1,7 @@
 package mx.org.inegi.sistemacaptura.armonizacion.entity.desgloses;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "desglose_a", schema = "public")
+@Table(name = DatabaseTables.DESGLOSE_A, schema = DatabaseTables.ARMONIZACION)
 public class desgloses_armo_enty {
 
     @Id

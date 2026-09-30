@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.armonizacion.entity.variables;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -15,7 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "variables_a", schema = "public")
+@Table(name = DatabaseTables.VARIABLES_A, schema = DatabaseTables.ARMONIZACION)
 public class variables_armo_enty {
 
     @Id

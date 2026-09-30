@@ -1,6 +1,7 @@
 package mx.org.inegi.sistemacaptura.armonizacion.entity.variables;
 
 import java.util.List;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.clasificadores.clasificadores_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.clasificaciones.clasificaciones_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.datosabiertos.datos_abiertos_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.microdatos.microdatos_armo_dto;
@@ -12,6 +13,10 @@ import mx.org.inegi.sistemacaptura.entity.pertinencias.pertinencia_enty;
 public class variables_detalle_armo_dto {
 
     private variables_armo_dto variable;
+    private List<clasificadores_armo_dto> clasificadores;
+
+    public List<clasificadores_armo_dto> getClasificadores() { return clasificadores; }
+    public void setClasificadores(List<clasificadores_armo_dto> clasificadores) { this.clasificadores = clasificadores; }
     private List<clasificaciones_armo_dto> clasificaciones;
     private List<microdatos_armo_dto> microdatos;
     private List<datos_abiertos_armo_dto> datosAbiertos;

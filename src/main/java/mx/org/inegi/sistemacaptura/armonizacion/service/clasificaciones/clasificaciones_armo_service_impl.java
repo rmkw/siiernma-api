@@ -17,8 +17,10 @@ import mx.org.inegi.sistemacaptura.armonizacion.repository.clasificaciones.clasi
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class clasificaciones_armo_service_impl
         implements clasificaciones_armo_service {
 
@@ -45,21 +47,22 @@ public class clasificaciones_armo_service_impl
 
         clasificaciones_armo_enty guardada
                 = clasificacionesArmoRepo.save(entity);
+        variablesArmoRepo.sincronizarClasificacion(dto.getIdA());
 
         return convertirA_DTO(guardada);
     }
 
     @Override
     public void eliminarClasificacion(Integer idUnique) {
-        if (!clasificacionesArmoRepo.existsById(idUnique)) {
-            throw new RuntimeException(
-                    "No existe la clasificacion con id_unique: " + idUnique);
-        }
-
-        clasificacionesArmoRepo.deleteById(idUnique);
+        clasificaciones_armo_enty existente = clasificacionesArmoRepo.findById(idUnique)
+                .orElseThrow(() -> new RuntimeException(
+                "No existe la clasificacion con id_unique: " + idUnique));
+        clasificacionesArmoRepo.delete(existente);
+        variablesArmoRepo.sincronizarClasificacion(existente.getIdA());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<clasificaciones_armo_dto> obtenerPorIdA(String idA) {
         return clasificacionesArmoRepo.findByIdAOrderByIdUniqueAsc(idA)
                 .stream()

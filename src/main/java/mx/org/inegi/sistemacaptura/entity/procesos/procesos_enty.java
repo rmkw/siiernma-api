@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.entity.procesos;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -14,7 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "procesos_s", schema = "public")
+@Table(name = DatabaseTables.PROCESOS_S, schema = DatabaseTables.SELECCION)
 public class procesos_enty {
     @Id
     @Column(name = "acronimo", nullable = false)

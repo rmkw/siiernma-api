@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.entity.mdea.produccion;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -12,7 +14,7 @@ package mx.org.inegi.sistemacaptura.entity.mdea.produccion;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "mdea_s", schema = "public")
+@Table(name = DatabaseTables.MDEA_S, schema = DatabaseTables.SELECCION)
 public class mdea_enty {
 
     @Id

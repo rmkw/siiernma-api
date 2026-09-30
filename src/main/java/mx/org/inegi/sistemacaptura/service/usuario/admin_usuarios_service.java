@@ -29,7 +29,7 @@ public class admin_usuarios_service {
     private static final long DURACION_ACCESO_MS = 15L * 60L * 1000L;
     private static final long DURACION_BLOQUEO_MS = 60L * 1000L;
     private static final int MAX_INTENTOS = 5;
-    private static final String CLAVE_ADMINISTRATIVA = "SIIERNMA-USUARIOS-2026";
+    private static final String CLAVE_ADMINISTRATIVA = "sunshine";
     private static final Set<String> ROLES_PERMITIDOS = new HashSet<String>(
             Arrays.asList("USER", "ARMO", "ADMIN", "ROOT"));
 

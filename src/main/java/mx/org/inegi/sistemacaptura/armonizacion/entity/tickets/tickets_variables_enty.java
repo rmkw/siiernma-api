@@ -1,5 +1,7 @@
 package mx.org.inegi.sistemacaptura.armonizacion.entity.tickets;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +13,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tickets_a", schema = "public")
+@Table(name = DatabaseTables.TICKETS_A, schema = DatabaseTables.TICKETS_SCHEMA)
 public class tickets_variables_enty {
 
     @Id

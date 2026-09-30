@@ -1,5 +1,7 @@
 package mx.org.inegi.sistemacaptura.armonizacion.entity.pertinencias;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "pertinencia_a", schema = "public")
+@Table(name = DatabaseTables.PERTINENCIA_A, schema = DatabaseTables.ARMONIZACION)
 public class pertinencia_armo_enty {
 
     @Id

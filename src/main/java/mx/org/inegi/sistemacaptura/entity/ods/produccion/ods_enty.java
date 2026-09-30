@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.entity.ods.produccion;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -17,7 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ods_s", schema = "public")
+@Table(name = DatabaseTables.ODS_S, schema = DatabaseTables.SELECCION)
 public class ods_enty {
 
     @Id

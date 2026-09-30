@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.entity.variables;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -16,7 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "variables_s", schema = "public")
+@Table(name = DatabaseTables.VARIABLES_S, schema = DatabaseTables.SELECCION)
 public class variables_enty {
 
     @Id

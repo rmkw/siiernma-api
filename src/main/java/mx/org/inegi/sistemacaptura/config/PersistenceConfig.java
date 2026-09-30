@@ -48,6 +48,11 @@ public class PersistenceConfig implements EnvironmentAware {
         dataSource.setPassword(environment.getRequiredProperty("db.password"));
         dataSource.setInitialSize(1);
         dataSource.setMaxTotal(10);
+        // Release unused connections, including the last one, after five minutes.
+        dataSource.setMinIdle(0);
+        dataSource.setMinEvictableIdleTimeMillis(5 * 60 * 1000L);
+        dataSource.setTimeBetweenEvictionRunsMillis(60 * 1000L);
+        dataSource.setNumTestsPerEvictionRun(-1);
         return dataSource;
     }
 

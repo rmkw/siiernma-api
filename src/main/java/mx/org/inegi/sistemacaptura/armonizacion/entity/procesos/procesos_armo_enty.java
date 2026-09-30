@@ -1,12 +1,14 @@
 package mx.org.inegi.sistemacaptura.armonizacion.entity.procesos;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "procesos_a", schema = "public")
+@Table(name = DatabaseTables.PROCESOS_A, schema = DatabaseTables.ARMONIZACION)
 public class procesos_armo_enty {
 
     @Id

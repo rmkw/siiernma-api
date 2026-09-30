@@ -4,6 +4,8 @@
  */
 package mx.org.inegi.sistemacaptura.armonizacion.entity.clasificaciones;
 
+import mx.org.inegi.sistemacaptura.config.DatabaseTables;
+
 /**
  *
  * @author LUIS.CASTANEDAL
@@ -17,7 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "clasificaciones_a", schema = "public")
+@Table(name = DatabaseTables.CLASIFICACIONES_A, schema = DatabaseTables.ARMONIZACION)
 public class clasificaciones_armo_enty {
 
     @Id
