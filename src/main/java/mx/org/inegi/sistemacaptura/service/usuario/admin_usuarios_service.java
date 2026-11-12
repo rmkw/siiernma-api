@@ -31,7 +31,7 @@ public class admin_usuarios_service {
     private static final int MAX_INTENTOS = 5;
     private static final String CLAVE_ADMINISTRATIVA = "sunshine";
     private static final Set<String> ROLES_PERMITIDOS = new HashSet<String>(
-            Arrays.asList("USER", "ARMO", "ADMIN", "ROOT"));
+            Arrays.asList("USER", "ARMO", "VALIDA", "REVISOR", "IMPORT", "ADMIN", "ROOT"));
 
     @Autowired
     private usuario_repo repository;
@@ -40,6 +40,13 @@ public class admin_usuarios_service {
     private PasswordEncoder passwordEncoder;
 
     public void desbloquear(HttpSession session, String clave) {
+        verificarClaveAdministrativa(session, clave);
+        long ahora = System.currentTimeMillis();
+        session.setAttribute(ACCESO, Boolean.TRUE);
+        session.setAttribute(ULTIMA_ACTIVIDAD, ahora);
+    }
+
+    public void verificarClaveAdministrativa(HttpSession session, String clave) {
         long ahora = System.currentTimeMillis();
         Long bloqueadoHasta = (Long) session.getAttribute(BLOQUEADO_HASTA);
         if (bloqueadoHasta != null && bloqueadoHasta > ahora) {
@@ -61,8 +68,6 @@ public class admin_usuarios_service {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "La clave es incorrecta");
         }
 
-        session.setAttribute(ACCESO, Boolean.TRUE);
-        session.setAttribute(ULTIMA_ACTIVIDAD, ahora);
         session.removeAttribute(INTENTOS);
         session.removeAttribute(BLOQUEADO_HASTA);
     }

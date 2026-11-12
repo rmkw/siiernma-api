@@ -10,10 +10,12 @@ package mx.org.inegi.sistemacaptura.armonizacion.service.variables;
  */
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_busqueda_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_detalle_armo_dto;
+import mx.org.inegi.sistemacaptura.entity.variables.variable_movimiento_fuente_dto;
 
 public interface variables_armo_service {
 
@@ -24,6 +26,8 @@ public interface variables_armo_service {
     variables_armo_dto actualizarValidacion(String idA, Boolean validada);
 
     List<variables_armo_dto> obtenerPorIdFuente(String idFuente);
+
+    Map<String, Object> moverVariablesDeFuente(variable_movimiento_fuente_dto dto);
 
     List<variables_busqueda_armo_dto> buscarPorIdONombre(String termino);
 
@@ -36,6 +40,8 @@ public interface variables_armo_service {
     variables_armo_dto actualizarVariable(String idA, variables_armo_dto dto);
 
     void eliminarVariable(String idA);
+
+    void eliminarVariableDesdeValidacion(String idA);
 
     Long contarVariablesArmonizadas();
 }

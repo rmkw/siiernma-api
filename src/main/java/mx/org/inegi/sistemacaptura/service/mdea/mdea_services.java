@@ -12,6 +12,7 @@ package mx.org.inegi.sistemacaptura.service.mdea;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 import mx.org.inegi.sistemacaptura.entity.mdea.catalogo.cat_componente_enty;
 import mx.org.inegi.sistemacaptura.entity.mdea.catalogo.cat_estadistico1_enty;
 import mx.org.inegi.sistemacaptura.entity.mdea.catalogo.cat_estadistico2_enty;
@@ -140,6 +141,41 @@ public class mdea_services {
 
     public List<mdea_enty> getByIdA(String idA) {
         return repo_mdea.findByIdA(idA);
+    }
+
+    @Transactional
+    public mdea_enty actualizar(Integer idUnique, mdea_enty cambios) {
+        mdea_enty existente = repo_mdea.findById(idUnique)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Relacion MDEA no encontrada"));
+        if (cambios == null || !existente.getIdA().equals(cambios.getIdA())
+                || !existente.getIdS().equals(cambios.getIdS())) {
+            throw new IllegalArgumentException("No se puede cambiar la variable de la relación MDEA.");
+        }
+        if (isBlank(cambios.getComponente()) || isBlank(cambios.getSubcomponente())
+                || isBlank(cambios.getTema()) || isBlank(cambios.getEstadistica1())
+                || isBlank(cambios.getEstadistica2()) || isBlank(cambios.getContribucion())
+                || isBlank(cambios.getComentarioS())) {
+            throw new IllegalArgumentException("Completa los campos de la relación MDEA.");
+        }
+        boolean duplicada = repo_mdea.findByIdA(existente.getIdA()).stream()
+                .anyMatch(otra -> !otra.getIdUnique().equals(idUnique)
+                        && Objects.equals(otra.getComponente(), cambios.getComponente())
+                        && Objects.equals(otra.getSubcomponente(), cambios.getSubcomponente())
+                        && Objects.equals(otra.getTema(), cambios.getTema())
+                        && Objects.equals(otra.getEstadistica1(), cambios.getEstadistica1())
+                        && Objects.equals(otra.getEstadistica2(), cambios.getEstadistica2()));
+        if (duplicada) {
+            throw new IllegalArgumentException("Ya existe una relación con estos valores para esta variable.");
+        }
+        existente.setComponente(cambios.getComponente());
+        existente.setSubcomponente(cambios.getSubcomponente());
+        existente.setTema(cambios.getTema());
+        existente.setEstadistica1(cambios.getEstadistica1());
+        existente.setEstadistica2(cambios.getEstadistica2());
+        existente.setContribucion(cambios.getContribucion());
+        existente.setComentarioS(cambios.getComentarioS());
+        return repo_mdea.save(existente);
     }
 
     @Transactional

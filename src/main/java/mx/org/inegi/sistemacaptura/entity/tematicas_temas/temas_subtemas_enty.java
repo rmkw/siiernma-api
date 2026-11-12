@@ -29,7 +29,7 @@ public class temas_subtemas_enty {
     @Column(name = "tema", nullable = false)
     private String tema;
 
-    @Column(name = "subtema", nullable = false)
+    @Column(name = "subtema")
     private String subtema;
 
     public Integer getIdUnique() {

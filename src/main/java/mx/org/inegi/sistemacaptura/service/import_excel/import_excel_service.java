@@ -12,12 +12,14 @@ package mx.org.inegi.sistemacaptura.service.import_excel;
 
 import java.io.InputStream;
 import java.security.Principal;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import mx.org.inegi.sistemacaptura.entity.comentarios_pp.comentarios_pp_seleccion_enty;
@@ -1299,10 +1301,16 @@ public class import_excel_service {
         }
 
         String trimmed = value.trim();
+        String normalized = Normalizer.normalize(trimmed, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("\\s+", " ");
 
         if (trimmed.isEmpty()
                 || trimmed.equals("-")
-                || trimmed.equalsIgnoreCase("No cuenta con estadístico")) {
+                || normalized.matches("n\\.?|na\\.?")
+                || normalized.matches("n\\s*/\\s*a\\.?")
+                || normalized.matches("(?:n[.:-]? )?(?:no cuenta con estadistico(?: 2)?|no tiene(?: estadistico(?: 2)?)?|no asignado)[.!]?")) {
             return "-";
         }
 

@@ -10,9 +10,12 @@ package mx.org.inegi.sistemacaptura.controller.fuentes;
  */
 import java.util.Collections;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import mx.org.inegi.sistemacaptura.entity.fuentes.fuentes_dto;
 import mx.org.inegi.sistemacaptura.entity.fuentes.fuentes_enty;
+import mx.org.inegi.sistemacaptura.entity.usuario.clave_admin_dto;
 import mx.org.inegi.sistemacaptura.service.fuentes.fuentes_services;
+import mx.org.inegi.sistemacaptura.service.usuario.admin_usuarios_service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 public class fuentes_ctr {
     @Autowired
     private fuentes_services service;
+    @Autowired
+    private admin_usuarios_service adminService;
 
     @GetMapping("/por-acronimo")
     public ResponseEntity<List<fuentes_dto>> getByAcronimo(@RequestParam String acronimo) {
@@ -46,9 +51,22 @@ public class fuentes_ctr {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@RequestParam String idFuenteSeleccion) {
+    public ResponseEntity<?> delete(@RequestParam String idFuenteSeleccion,
+            @RequestBody(required = false) clave_admin_dto dto,
+            HttpServletRequest request) {
+        adminService.verificarClaveAdministrativa(request.getSession(true), dto == null ? null : dto.getClave());
         service.deleteByIdFuenteSeleccion(idFuenteSeleccion);
         return ResponseEntity.ok(Collections.singletonMap("message", "Fuente eliminada correctamente"));
+    }
+
+    @PostMapping("/eliminar-desde-armonizacion")
+    public ResponseEntity<?> deleteDesdeArmonizacion(
+            @RequestParam String idFuenteSeleccion,
+            @RequestBody clave_admin_dto dto,
+            HttpServletRequest request) {
+        adminService.verificarClaveAdministrativa(request.getSession(true), dto == null ? null : dto.getClave());
+        service.deleteByIdFuenteSeleccion(idFuenteSeleccion);
+        return ResponseEntity.ok(Collections.singletonMap("message", "Fuente de Selección y sus variables eliminadas correctamente"));
     }
 
     @GetMapping("/count")

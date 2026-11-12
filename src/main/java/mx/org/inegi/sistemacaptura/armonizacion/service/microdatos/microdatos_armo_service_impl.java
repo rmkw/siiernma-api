@@ -17,6 +17,7 @@ import mx.org.inegi.sistemacaptura.armonizacion.repository.microdatos.microdatos
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class microdatos_armo_service_impl implements microdatos_armo_service {
@@ -28,8 +29,10 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
     private variables_armo_repo variablesArmoRepo;
 
     @Override
+    @Transactional
     public microdatos_armo_dto guardarMicrodato(microdatos_armo_dto dto) {
         validarMicrodato(dto);
+        variablesArmoRepo.exigirEditable(dto.getIdA());
 
         if (!variablesArmoRepo.existsById(dto.getIdA())) {
             throw new RuntimeException(
@@ -61,9 +64,11 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
     }
 
     @Override
+    @Transactional
     public microdatos_armo_dto actualizarMicrodato(Integer idUnique,
             microdatos_armo_dto dto) {
         validarMicrodato(dto);
+        variablesArmoRepo.exigirEditable(dto.getIdA());
         microdatos_armo_enty existente = microdatosArmoRepo.findById(idUnique)
                 .orElseThrow(() -> new RuntimeException(
                 "No existe el microdato con id_unique: " + idUnique));
@@ -85,11 +90,13 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
     }
 
     @Override
+    @Transactional
     public void eliminarMicrodato(Integer idUnique) {
         microdatos_armo_enty existente = microdatosArmoRepo.findById(idUnique)
                 .orElseThrow(() -> new RuntimeException(
                 "No existe el microdato con id_unique: " + idUnique));
 
+        variablesArmoRepo.exigirEditable(existente.getIdA());
         microdatosArmoRepo.delete(existente);
         microdatosArmoRepo.flush();
         actualizarBanderaMicrodatos(existente.getIdA(),

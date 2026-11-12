@@ -118,6 +118,12 @@ public class fuentes_armo_controller {
         return service.updateFuente(dto);
     }
 
+    @PutMapping("/by-id")
+    public fuentes_armo_enty updateFuenteById(@RequestParam String idFuente,
+            @RequestBody fuente_save_dto dto) {
+        return service.updateFuenteByIdFuente(idFuente, dto);
+    }
+
     @GetMapping("/by-id-fuente-seleccion")
     public fuentes_armo_enty getFuenteByIdFuenteSeleccion(
             @RequestParam String idFuenteSeleccion) {

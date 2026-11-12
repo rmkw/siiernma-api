@@ -23,11 +23,13 @@ public class clasificadores_armo_service_impl implements clasificadores_armo_ser
     @Override
     public clasificadores_armo_dto guardarClasificador(clasificadores_armo_dto dto) {
         validarClasificador(dto);
+        variablesArmoRepo.exigirEditable(dto.getIdA());
 
         if (!variablesArmoRepo.existsById(dto.getIdA())) {
             throw new RuntimeException(
                     "No existe la variable en armonizacion con id_a: " + dto.getIdA());
         }
+        exigirClasificadorNoDuplicado(dto, null);
 
         clasificadores_armo_enty entity = convertirA_Entity(dto);
         entity.setIdUnique(null);
@@ -40,6 +42,7 @@ public class clasificadores_armo_service_impl implements clasificadores_armo_ser
     public clasificadores_armo_dto actualizarClasificador(Integer idUnique,
             clasificadores_armo_dto dto) {
         validarClasificador(dto);
+        variablesArmoRepo.exigirEditable(dto.getIdA());
         clasificadores_armo_enty existente = clasificadoresArmoRepo.findById(idUnique)
                 .orElseThrow(() -> new RuntimeException(
                 "No existe el clasificador con id_unique: " + idUnique));
@@ -47,6 +50,7 @@ public class clasificadores_armo_service_impl implements clasificadores_armo_ser
         if (!existente.getIdA().equals(dto.getIdA())) {
             throw new RuntimeException("No es posible cambiar la variable del clasificador");
         }
+        exigirClasificadorNoDuplicado(dto, idUnique);
 
         clasificadores_armo_enty actualizado = convertirA_Entity(dto);
         actualizado.setIdUnique(idUnique);
@@ -60,6 +64,7 @@ public class clasificadores_armo_service_impl implements clasificadores_armo_ser
         clasificadores_armo_enty existente = clasificadoresArmoRepo.findById(idUnique)
                 .orElseThrow(() -> new RuntimeException(
                 "No existe el clasificador con id_unique: " + idUnique));
+        variablesArmoRepo.exigirEditable(existente.getIdA());
         clasificadoresArmoRepo.delete(existente);
         variablesArmoRepo.sincronizarClasificacion(existente.getIdA());
     }
@@ -81,6 +86,24 @@ public class clasificadores_armo_service_impl implements clasificadores_armo_ser
         if (dto.getIdA() == null || dto.getIdA().trim().isEmpty()) {
             throw new RuntimeException("El campo id_a es obligatorio");
         }
+    }
+
+    private void exigirClasificadorNoDuplicado(clasificadores_armo_dto dto, Integer idExcluir) {
+        boolean duplicado = clasificadoresArmoRepo.findByIdAOrderByIdUniqueAsc(dto.getIdA())
+                .stream()
+                .anyMatch(actual -> !actual.getIdUnique().equals(idExcluir)
+                        && mismoTexto(actual.getClasificador(), dto.getClasificador())
+                        && mismoTexto(actual.getVersion(), dto.getVersion())
+                        && mismoTexto(actual.getUrl(), dto.getUrl()));
+        if (duplicado) {
+            throw new IllegalArgumentException(
+                    "Ya existe un clasificador con el mismo nombre, versión y URL para esta variable.");
+        }
+    }
+
+    private boolean mismoTexto(String primero, String segundo) {
+        return (primero == null ? "" : primero.trim())
+                .equalsIgnoreCase(segundo == null ? "" : segundo.trim());
     }
 
     private clasificadores_armo_dto convertirA_DTO(clasificadores_armo_enty entity) {

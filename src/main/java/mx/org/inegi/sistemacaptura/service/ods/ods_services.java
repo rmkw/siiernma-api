@@ -12,6 +12,7 @@ package mx.org.inegi.sistemacaptura.service.ods;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 import mx.org.inegi.sistemacaptura.entity.ods.catalogo.cat_indicador_enty;
 import mx.org.inegi.sistemacaptura.entity.ods.catalogo.cat_meta_enty;
 import mx.org.inegi.sistemacaptura.entity.ods.catalogo.cat_objetivo_enty;
@@ -90,6 +91,28 @@ public class ods_services {
 
     public List<ods_enty> getByIdA(String idA) {
         return repository.findByIdA(idA);
+    }
+
+    @Transactional
+    public ods_enty update(Integer id, ods_enty cambios) {
+        ods_enty actual = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Relacion ODS no encontrada"));
+        if (cambios == null || isBlank(cambios.getObjetivo()) || isBlank(cambios.getContribucion())) {
+            throw new IllegalArgumentException("Debe indicar objetivo y contribución.");
+        }
+        if (repository.findByIdA(actual.getIdA()).stream().anyMatch(item ->
+                !Objects.equals(item.getIdUnique(), id)
+                && Objects.equals(item.getObjetivo(), cambios.getObjetivo())
+                && Objects.equals(item.getMeta(), cambios.getMeta())
+                && Objects.equals(item.getIndicador(), cambios.getIndicador()))) {
+            throw new IllegalArgumentException("Ya existe esta relacion ODS para esta variable.");
+        }
+        actual.setObjetivo(cambios.getObjetivo());
+        actual.setMeta(cambios.getMeta());
+        actual.setIndicador(cambios.getIndicador());
+        actual.setContribucion(cambios.getContribucion());
+        actual.setComentarioS(cambios.getComentarioS());
+        return repository.save(actual);
     }
 
     @Transactional

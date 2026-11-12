@@ -17,6 +17,7 @@ import mx.org.inegi.sistemacaptura.armonizacion.repository.datosabiertos.datos_a
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class datos_abiertos_armo_service_impl
@@ -29,9 +30,11 @@ public class datos_abiertos_armo_service_impl
     private variables_armo_repo variablesArmoRepo;
 
     @Override
+    @Transactional
     public datos_abiertos_armo_dto guardarDatoAbierto(
             datos_abiertos_armo_dto dto) {
         validarDatoAbierto(dto);
+        variablesArmoRepo.exigirEditable(dto.getIdA());
 
         if (!variablesArmoRepo.existsById(dto.getIdA())) {
             throw new RuntimeException(
@@ -63,9 +66,11 @@ public class datos_abiertos_armo_service_impl
     }
 
     @Override
+    @Transactional
     public datos_abiertos_armo_dto actualizarDatoAbierto(Integer idUnique,
             datos_abiertos_armo_dto dto) {
         validarDatoAbierto(dto);
+        variablesArmoRepo.exigirEditable(dto.getIdA());
         datos_abiertos_armo_enty existente = datosAbiertosArmoRepo.findById(idUnique)
                 .orElseThrow(() -> new RuntimeException(
                 "No existe el dato abierto con id_unique: " + idUnique));
@@ -87,13 +92,13 @@ public class datos_abiertos_armo_service_impl
     }
 
     @Override
+    @Transactional
     public void eliminarDatoAbierto(Integer idUnique) {
-        if (!datosAbiertosArmoRepo.existsById(idUnique)) {
-            throw new RuntimeException(
-                    "No existe el dato abierto con id_unique: " + idUnique);
-        }
-
-        datosAbiertosArmoRepo.deleteById(idUnique);
+        datos_abiertos_armo_enty existente = datosAbiertosArmoRepo.findById(idUnique)
+                .orElseThrow(() -> new RuntimeException(
+                        "No existe el dato abierto con id_unique: " + idUnique));
+        variablesArmoRepo.exigirEditable(existente.getIdA());
+        datosAbiertosArmoRepo.delete(existente);
     }
 
     @Override

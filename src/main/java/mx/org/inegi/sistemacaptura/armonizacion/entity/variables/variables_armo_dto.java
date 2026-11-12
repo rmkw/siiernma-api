@@ -21,7 +21,7 @@ public class variables_armo_dto {
     private String pregunta;
     private String definicion;
     private String universo;
-    private Integer anioReferencia;
+    private Object anioReferencia;
     private String tematica;
     private String tema1;
     private String subtema1;
@@ -43,7 +43,7 @@ public class variables_armo_dto {
     public variables_armo_dto(String idA, String idFuente, String acronimo,
             String idS, String variableS, String variableA, String url,
             String pregunta, String definicion, String universo,
-            Integer anioReferencia, String tematica, String tema1,
+            Object anioReferencia, String tematica, String tema1,
             String subtema1, String tema2, String subtema2, Boolean tabulados,
             Boolean clasificacion, Boolean microdatos, Boolean datosabiertos,
             Boolean mdea, Boolean ods, String comentarioS, String comentarioA,
@@ -105,8 +105,8 @@ public class variables_armo_dto {
     public String getUniverso() { return universo; }
     public void setUniverso(String universo) { this.universo = universo; }
 
-    public Integer getAnioReferencia() { return anioReferencia; }
-    public void setAnioReferencia(Integer anioReferencia) { this.anioReferencia = anioReferencia; }
+    public Object getAnioReferencia() { return anioReferencia; }
+    public void setAnioReferencia(Object anioReferencia) { this.anioReferencia = anioReferencia; }
 
     public String getTematica() { return tematica; }
     public void setTematica(String tematica) { this.tematica = tematica; }

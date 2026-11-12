@@ -16,6 +16,8 @@ public interface clasificaciones_armo_service {
 
     clasificaciones_armo_dto guardarClasificacion(clasificaciones_armo_dto dto);
 
+    clasificaciones_armo_dto actualizarClasificacion(Integer idUnique, clasificaciones_armo_dto dto);
+
     void eliminarClasificacion(Integer idUnique);
 
     List<clasificaciones_armo_dto> obtenerPorIdA(String idA);

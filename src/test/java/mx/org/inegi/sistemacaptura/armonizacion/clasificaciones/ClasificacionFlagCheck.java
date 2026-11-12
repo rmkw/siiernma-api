@@ -61,9 +61,16 @@ public class ClasificacionFlagCheck {
         variable.setIdA("TEST-001");
         variable.setClasificacion(false);
         variables_armo_repo variablesRepo = proxy(variables_armo_repo.class, (p, m, a) -> {
+            if (m.isDefault()) {
+                return java.lang.invoke.MethodHandles.lookup()
+                        .findSpecial(m.getDeclaringClass(), m.getName(),
+                                java.lang.invoke.MethodType.methodType(m.getReturnType(), m.getParameterTypes()),
+                                m.getDeclaringClass()).bindTo(p).invokeWithArguments(a);
+            }
             switch (m.getName()) {
                 case "existsById": return true;
                 case "findById": return Optional.of(variable);
+                case "buscarParaActualizar": return Optional.of(variable);
                 case "tieneClasificacionOClasificador": return tieneRelaciones();
                 case "sincronizarClasificacion": variable.setClasificacion(tieneRelaciones()); return 1;
                 case "save": return a[0];
@@ -82,6 +89,19 @@ public class ClasificacionFlagCheck {
         clasificaciones_armo_dto clase = clasesService.guardarClasificacion(
                 new clasificaciones_armo_dto(null, "TEST-001", "Clase", "-"));
         check(true, "One classification is enough");
+        clasificaciones_armo_dto editada = clasesService.actualizarClasificacion(clase.getIdUnique(),
+                new clasificaciones_armo_dto(null, "TEST-001", "Clase editada", "Comentario editado"));
+        if (!clase.getIdUnique().equals(editada.getIdUnique())
+                || !"Clase editada".equals(editada.getClase())
+                || clases.size() != 1) throw new AssertionError("Editing classification must preserve its ID and count");
+        variable.setValidada(true);
+        try {
+            clasesService.actualizarClasificacion(clase.getIdUnique(),
+                    new clasificaciones_armo_dto(null, "TEST-001", "No permitido", "-"));
+            throw new AssertionError("Reviewed classification must not be editable");
+        } catch (org.springframework.web.server.ResponseStatusException expected) {
+            variable.setValidada(false);
+        }
         clasesService.eliminarClasificacion(clase.getIdUnique());
         check(false, "No relations");
         clasificadores_armo_dto clasificador = clasificadoresService.guardarClasificador(

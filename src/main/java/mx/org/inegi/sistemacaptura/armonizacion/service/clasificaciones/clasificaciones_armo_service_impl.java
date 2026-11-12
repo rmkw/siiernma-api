@@ -35,6 +35,11 @@ public class clasificaciones_armo_service_impl
             clasificaciones_armo_dto dto) {
 
         validarClasificacion(dto);
+        if (dto.getIdUnique() != null) {
+            clasificacionesArmoRepo.findById(dto.getIdUnique()).ifPresent(
+                    registro -> variablesArmoRepo.exigirEditable(registro.getIdA()));
+        }
+        variablesArmoRepo.exigirEditable(dto.getIdA());
 
         if (!variablesArmoRepo.existsById(dto.getIdA())) {
             throw new RuntimeException(
@@ -57,8 +62,25 @@ public class clasificaciones_armo_service_impl
         clasificaciones_armo_enty existente = clasificacionesArmoRepo.findById(idUnique)
                 .orElseThrow(() -> new RuntimeException(
                 "No existe la clasificacion con id_unique: " + idUnique));
+        variablesArmoRepo.exigirEditable(existente.getIdA());
         clasificacionesArmoRepo.delete(existente);
         variablesArmoRepo.sincronizarClasificacion(existente.getIdA());
+    }
+
+    @Override
+    public clasificaciones_armo_dto actualizarClasificacion(Integer idUnique,
+            clasificaciones_armo_dto dto) {
+        validarClasificacion(dto);
+        clasificaciones_armo_enty existente = clasificacionesArmoRepo.findById(idUnique)
+                .orElseThrow(() -> new RuntimeException(
+                "No existe la clasificacion con id_unique: " + idUnique));
+        if (!existente.getIdA().equals(dto.getIdA())) {
+            throw new RuntimeException("No es posible cambiar la variable de la clasificación");
+        }
+        variablesArmoRepo.exigirEditable(existente.getIdA());
+        existente.setClase(dto.getClase().trim());
+        existente.setComentarioA(dto.getComentarioA().trim());
+        return convertirA_DTO(clasificacionesArmoRepo.save(existente));
     }
 
     @Override

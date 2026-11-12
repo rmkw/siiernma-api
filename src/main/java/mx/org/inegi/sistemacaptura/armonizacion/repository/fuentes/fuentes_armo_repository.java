@@ -64,4 +64,17 @@ public interface fuentes_armo_repository
             @Param("comentarioS") String comentarioS,
             @Param("comentarioA") String comentarioA,
             @Param("idFuenteSeleccion") String idFuenteSeleccion);
+
+    @Modifying
+    @Query(value = "UPDATE " + DatabaseTables.FUENTES_A_SQL + " "
+            + "SET fuente = :fuente, url = :url, edicion = :edicion, "
+            + "comentario_s = :comentarioS, comentario_a = :comentarioA "
+            + "WHERE id_fuente = :idFuente", nativeQuery = true)
+    int updateFuenteByIdFuente(
+            @Param("idFuente") String idFuente,
+            @Param("fuente") String fuente,
+            @Param("url") String url,
+            @Param("edicion") String edicion,
+            @Param("comentarioS") String comentarioS,
+            @Param("comentarioA") String comentarioA);
 }

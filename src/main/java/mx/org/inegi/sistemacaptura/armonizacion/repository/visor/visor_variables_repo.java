@@ -44,7 +44,7 @@ public class visor_variables_repo {
 
     public List<Object[]> listar(Map<String, Object> filtros, int offset, int size) {
         String jpql = "SELECT v.idA, v.variableA, v.acronimo, v.idFuente,"
-                + " f.fuente, f.edicion, v.anioReferencia, v.validada" + FROM
+                + " f.fuente, f.edicion, CAST(v.anioReferencia AS string), v.validada" + FROM
                 + " LEFT JOIN fuentes_armo_enty f ON f.idFuente = v.idFuente"
                 + condiciones(filtros) + " ORDER BY v.idA ASC";
         return consulta(jpql, Object[].class, filtros)
@@ -76,6 +76,13 @@ public class visor_variables_repo {
                 + FROM + condiciones(filtros) + " AND v.idFuente = f.idFuente)"
                 + " ORDER BY f.fuente, f.edicion, f.idFuente",
                 Object[].class, filtros).getResultList();
+    }
+
+    public List<String> anios(Map<String, Object> filtros) {
+        String anio = "CAST(v.anioReferencia AS string)";
+        return consulta("SELECT DISTINCT " + anio + FROM + condiciones(filtros)
+                + " AND v.anioReferencia IS NOT NULL ORDER BY " + anio,
+                String.class, filtros).getResultList();
     }
 
     public <T> List<T> distintos(String campo, Class<T> tipo, Map<String, Object> filtros) {

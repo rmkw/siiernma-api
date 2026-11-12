@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuente_save_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuentes_armo_enty;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_enty;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.fuentes.fuentes_armo_repository;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.procesos.procesos_armo_repo;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.tickets.tickets_variables_repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,9 @@ public class fuentes_armo_service {
 
     @Autowired
     private variables_armo_repo variablesArmoRepo;
+
+    @Autowired
+    private tickets_variables_repo ticketsRepository;
 
     @Transactional
     public fuentes_armo_enty createFuente(fuente_save_dto dto) {
@@ -73,6 +78,7 @@ public class fuentes_armo_service {
                     return fuenteReutilizada;
                 }
 
+                variablesArmoRepo.exigirFuenteEditable(fuenteExistente.getIdFuente());
                 repository.updateFuenteByIdFuenteSeleccion(
                         acronimo,
                         fuente,
@@ -167,6 +173,15 @@ public class fuentes_armo_service {
                         HttpStatus.NOT_FOUND,
                         "Fuente no encontrada en armonizacion"));
 
+        // Los tickets no tienen borrado en cascada; validar primero todas las variables.
+        List<variables_armo_enty> variables = variablesArmoRepo.bloquearPorFuente(fuente.getIdFuente());
+        for (variables_armo_enty variable : variables) {
+            variables_armo_repo.comprobarRevision(variable);
+        }
+        for (variables_armo_enty variable : variables) {
+            ticketsRepository.deleteAll(ticketsRepository.findByIdAOrderByFechaCreacionDesc(variable.getIdA()));
+        }
+        ticketsRepository.flush();
         repository.delete(fuente);
     }
 
@@ -201,6 +216,8 @@ public class fuentes_armo_service {
             return fuenteExistente;
         }
 
+        repository.findByIdFuenteSeleccion(idFuenteSeleccion).ifPresent(
+                actual -> variablesArmoRepo.exigirFuenteEditable(actual.getIdFuente()));
         int updated = repository.updateFuenteByIdFuenteSeleccion(
                 acronimo,
                 fuente,
@@ -219,6 +236,28 @@ public class fuentes_armo_service {
         return repository.findByIdFuenteSeleccion(idFuenteSeleccion)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
+                        "La fuente se actualizo pero no pudo recuperarse"));
+    }
+
+    @Transactional
+    public fuentes_armo_enty updateFuenteByIdFuente(String idFuenteActual, fuente_save_dto dto) {
+        validarDto(dto);
+        fuentes_armo_enty actual = repository.findByIdFuente(idFuenteActual)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Fuente no encontrada en armonizacion"));
+        variablesArmoRepo.exigirFuenteEditable(idFuenteActual);
+        String fuente = dto.getFuente().trim();
+        String url = normalizarTexto(dto.getUrl());
+        String edicion = normalizarTexto(dto.getEdicion());
+        String idNuevo = construirIdFuente(actual.getAcronimo(), fuente, edicion, url);
+        if (!idFuenteActual.equals(idNuevo) && repository.existsByIdFuente(idNuevo)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Ya existe otra fuente con esos datos");
+        }
+        repository.updateFuenteByIdFuente(idFuenteActual, fuente, url, edicion,
+                normalizarTexto(dto.getComentarioS()), normalizarTexto(dto.getComentarioA()));
+        return repository.findByIdFuente(idNuevo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "La fuente se actualizo pero no pudo recuperarse"));
     }
 

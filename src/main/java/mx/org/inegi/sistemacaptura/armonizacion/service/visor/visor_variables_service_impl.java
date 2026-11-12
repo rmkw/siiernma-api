@@ -41,9 +41,14 @@ public class visor_variables_service_impl implements visor_variables_service {
             filtros.put("variableA", "%" + nombre.trim().toLowerCase(Locale.ROOT)
                     .replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%");
         }
-        if (parametros.containsKey("anioReferencia")) {
-            filtros.put("anioReferencia",
-                    String.valueOf(entero(parametros.get("anioReferencia"), 0, "anioReferencia")));
+        String anio = parametros.get("anioReferencia");
+        if (anio != null && !anio.trim().isEmpty()) {
+            anio = anio.trim();
+            if (!anio.matches("\\d{4}(?:[/\\-]\\d{4})*")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "El parametro anioReferencia debe ser un año o periodo valido");
+            }
+            filtros.put("anioReferencia", anio);
         }
         for (String campo : BANDERAS) {
             if (!parametros.containsKey(campo)) continue;
@@ -100,7 +105,7 @@ public class visor_variables_service_impl implements visor_variables_service {
                         .collect(Collectors.toList())
                 : Collections.emptyList());
         if (todos.containsKey("idFuente")) ambito.put("idFuente", todos.get("idFuente"));
-        resultado.put("anios", repo.distintos("anioReferencia", Integer.class, ambito));
+        resultado.put("anios", repo.anios(ambito));
         for (String campo : Arrays.asList("tematica", "tema1", "tema2")) {
             resultado.put(campo, repo.distintos(campo, String.class, ambito));
         }

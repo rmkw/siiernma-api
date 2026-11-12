@@ -12,6 +12,11 @@ import mx.org.inegi.sistemacaptura.config.DatabaseTables;
  */
 
 import java.util.List;
+import java.util.Optional;
+import javax.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_enty;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,7 +28,32 @@ import org.springframework.stereotype.Repository;
 public interface variables_armo_repo
         extends JpaRepository<variables_armo_enty, String> {
 
-    String TIENE_CLASIFICACION = "EXISTS (SELECT 1 FROM " + DatabaseTables.CLASIFICACIONES_A_SQL + " WHERE id_a = :idA)"
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT v FROM variables_armo_enty v WHERE v.idA = :idA")
+    Optional<variables_armo_enty> buscarParaActualizar(@Param("idA") String idA);
+
+    default void exigirEditable(String idA) {
+        buscarParaActualizar(idA).ifPresent(variables_armo_repo::comprobarRevision);
+    }
+
+    static void comprobarRevision(variables_armo_enty variable) {
+        if (Boolean.TRUE.equals(variable.getValidada())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La variable " + variable.getIdA()
+                    + " está revisada. Debe desrevisarla en Validación antes de modificarla.");
+        }
+    }
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT v FROM variables_armo_enty v WHERE v.idFuente = :idFuente ORDER BY v.idA")
+    List<variables_armo_enty> bloquearPorFuente(@Param("idFuente") String idFuente);
+
+    default void exigirFuenteEditable(String idFuente) {
+        for (variables_armo_enty variable : bloquearPorFuente(idFuente)) {
+            comprobarRevision(variable);
+        }
+    }
+
+    String TIENE_CLASIFICACION = "(SELECT COUNT(*) FROM " + DatabaseTables.CLASIFICACIONES_A_SQL + " WHERE id_a = :idA) >= 2"
             + " OR EXISTS (SELECT 1 FROM " + DatabaseTables.CLASIFICADORES_A_SQL + " WHERE id_a = :idA)";
 
     @Query(value = "SELECT " + TIENE_CLASIFICACION, nativeQuery = true)

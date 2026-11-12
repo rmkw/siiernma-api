@@ -52,7 +52,7 @@ public class variables_armo_enty {
     private String universo;
 
     @Column(name = "anio_referencia")
-    private Integer anioReferencia;
+    private String anioReferencia;
 
     @Column(name = "tematica")
     private String tematica;
@@ -102,7 +102,7 @@ public class variables_armo_enty {
     public variables_armo_enty(String idA, String idFuente, String acronimo,
             String idS, String variableS, String variableA, String url,
             String pregunta, String definicion, String universo,
-            Integer anioReferencia, String tematica, String tema1,
+            String anioReferencia, String tematica, String tema1,
             String subtema1, String tema2, String subtema2, Boolean tabulados,
             Boolean clasificacion, Boolean microdatos, Boolean datosabiertos,
             Boolean mdea, Boolean ods, String comentarioS, String comentarioA,
@@ -164,8 +164,8 @@ public class variables_armo_enty {
     public String getUniverso() { return universo; }
     public void setUniverso(String universo) { this.universo = universo; }
 
-    public Integer getAnioReferencia() { return anioReferencia; }
-    public void setAnioReferencia(Integer anioReferencia) { this.anioReferencia = anioReferencia; }
+    public String getAnioReferencia() { return anioReferencia; }
+    public void setAnioReferencia(String anioReferencia) { this.anioReferencia = anioReferencia; }
 
     public String getTematica() { return tematica; }
     public void setTematica(String tematica) { this.tematica = tematica; }

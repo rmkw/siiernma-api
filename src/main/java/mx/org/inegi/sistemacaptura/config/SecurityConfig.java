@@ -5,6 +5,7 @@ import mx.org.inegi.sistemacaptura.service.auth.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,6 +38,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/import-excel/**")
+                .access("hasRole('IMPORT') or hasRole('ADMIN') or hasRole('ROOT') or (hasRole('USER') and !hasRole('ARMO'))")
+                .antMatchers(HttpMethod.PUT, "/api/variables/revision-prioridad/*", "/api/variables/revision-prioridad-masiva").hasRole("REVISOR")
+                .antMatchers(HttpMethod.DELETE, "/api/armo/variables/*/desde-validacion").hasRole("VALIDA")
+                .antMatchers(HttpMethod.POST, "/api/catalog/temas-subtemas/temas").hasRole("ARMO")
+                .antMatchers(HttpMethod.POST, "/api/catalog/temas-subtemas/subtemas").hasRole("ARMO")
+                .antMatchers(HttpMethod.PUT, "/api/armo/variables/*/validacion").hasRole("VALIDA")
                 .antMatchers(
                         "/api/auth/**",
                         "/api/prueba/**",

@@ -15,5 +15,9 @@ public interface temas_subtemas_service {
 
     List<String> obtenerTemas();
 
+    String crearTema(String nombre);
+
+    temas_subtemas_enty crearSubtema(String tema, String subtema);
+
     List<temas_subtemas_enty> obtenerSubtemasPorTema(String tema);
 }

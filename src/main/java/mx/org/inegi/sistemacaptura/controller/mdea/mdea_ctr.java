@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -110,6 +111,18 @@ public class mdea_ctr {
         try {
             mdea_enty nueva = service.save(relation);
             return ResponseEntity.ok(nueva);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<String, String>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarRelacion(@PathVariable Integer id,
+            @RequestBody mdea_enty relation) {
+        try {
+            return ResponseEntity.ok(service.actualizar(id, relation));
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<String, String>();
             error.put("error", e.getMessage());

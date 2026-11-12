@@ -90,6 +90,11 @@ public class VisorReadOnlyCheck {
                 visor_variables_service_impl service = new visor_variables_service_impl();
                 inject(service, "repo", repo);
                 long start = System.nanoTime();
+                Object yearType = em.createNativeQuery("SELECT data_type FROM information_schema.columns"
+                        + " WHERE table_schema = :schema AND table_name = :table AND column_name = 'anio_referencia'")
+                        .setParameter("schema", DatabaseTables.ARMONIZACION)
+                        .setParameter("table", DatabaseTables.VARIABLES_A).getSingleResult();
+                System.out.println("Year column type: " + yearType);
                 Map<String, Object> page = service.listar(params());
                 long total = ((Number) page.get("totalElements")).longValue();
                 long dbTotal = ((Number) em.createNativeQuery("SELECT COUNT(*) FROM " + DatabaseTables.VARIABLES_A_SQL + "").getSingleResult()).longValue();
@@ -128,6 +133,20 @@ public class VisorReadOnlyCheck {
                 Map<String, Object> options = service.filtros(params());
                 check(options.containsKey("unidades") && options.containsKey("subtema2"), "Filter options");
                 check(((List<?>) options.get("fuentes")).isEmpty(), "Sources disabled without process");
+                for (Object anio : (List<?>) options.get("anios")) {
+                    check(((String) anio).matches("\\d{4}(?:[/\\-]\\d{4})*"), "Unsupported year option: " + anio);
+                }
+                List<?> periodos = em.createNativeQuery("SELECT id_a, CAST(anio_referencia AS text) FROM "
+                        + DatabaseTables.VARIABLES_A_SQL
+                        + " WHERE CAST(anio_referencia AS text) LIKE '%/%' LIMIT 1").getResultList();
+                if (!periodos.isEmpty()) {
+                    String periodo = (String) ((Object[]) periodos.get(0))[1];
+                    check(((List<?>) options.get("anios")).contains(periodo), "Period in year options");
+                    for (Map<String, Object> item : (List<Map<String, Object>>) service.listar(params("anioReferencia", periodo)).get("content")) {
+                        check(periodo.equals(item.get("anioReferencia")), "Exact period");
+                    }
+                    System.out.println("PASS period filter: " + periodo);
+                }
                 List<String> units = (List<String>) options.get("unidades");
                 if (!units.isEmpty()) {
                     long expected = ((Number) em.createNativeQuery("SELECT COUNT(*) FROM " + DatabaseTables.VARIABLES_A_SQL + " v"
@@ -158,9 +177,9 @@ public class VisorReadOnlyCheck {
                             scoped.remove(campo);
                         }
                     }
-                    List<Integer> years = (List<Integer>) scopedOptions.get("anios");
+                    List<String> years = (List<String>) scopedOptions.get("anios");
                     if (!years.isEmpty()) {
-                        scoped.put("anioReferencia", years.get(0).toString());
+                        scoped.put("anioReferencia", years.get(0));
                         for (Map<String, Object> item : (List<Map<String, Object>>) service.listar(scoped).get("content")) {
                             check(years.get(0).equals(item.get("anioReferencia")), "Exact year");
                         }
@@ -174,11 +193,22 @@ public class VisorReadOnlyCheck {
                     String id = (String) rows.get(0).get("idA");
                     variables_detalle_armo_dto detail = detailService.obtenerDetallePorIdA(id);
                     check(detail.getVariable().getIdA().equals(id), "Detail ID");
+                    String anioFila = (String) rows.get(0).get("anioReferencia");
+                    if (anioFila != null && anioFila.matches("\\d{4}")) {
+                        check(detail.getVariable().getAnioReferencia() instanceof Integer,
+                                "Simple year remains numeric in detail");
+                    }
                     check(detail.getClasificadores() != null && detail.getClasificaciones() != null
                             && detail.getMicrodatos() != null && detail.getDatosAbiertos() != null
                             && detail.getTabulados() != null && detail.getMdeas() != null
                             && detail.getOdsList() != null, "Existing and new detail relationships");
                     System.out.println("PASS detail relationships");
+                    if (!periodos.isEmpty()) {
+                        Object[] periodo = (Object[]) periodos.get(0);
+                        variables_detalle_armo_dto periodDetail = detailService.obtenerDetallePorIdA((String) periodo[0]);
+                        check(periodo[1].equals(periodDetail.getVariable().getAnioReferencia()), "Period detail");
+                        System.out.println("PASS period detail");
+                    }
                 }
                 for (String sql : Arrays.asList(
                         "SELECT v.id_a, v.variable_a, v.acronimo, v.id_fuente, f.fuente, f.edicion, v.anio_referencia, v.validada"

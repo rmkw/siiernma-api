@@ -13,6 +13,11 @@ import mx.org.inegi.sistemacaptura.armonizacion.service.clasificadores.clasifica
 
 import java.util.Optional;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_enty;
@@ -29,11 +34,23 @@ import mx.org.inegi.sistemacaptura.armonizacion.repository.microdatos.microdatos
 import mx.org.inegi.sistemacaptura.armonizacion.service.tabulados.tabulados_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.service.variables_tabulados.variables_tabulados_armo_service;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.variables.variables_armo_repo;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.fuentes.fuentes_armo_repository;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.fuentes.fuentes_armo_enty;
+import mx.org.inegi.sistemacaptura.entity.variables.variable_movimiento_fuente_dto;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.tickets.tickets_variables_repo;
 import mx.org.inegi.sistemacaptura.repository.mdea.produccion.mdea_repo;
 import mx.org.inegi.sistemacaptura.repository.ods.produccion.ods_repo;
 import mx.org.inegi.sistemacaptura.repository.pertinencias.pertinencia_repo;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.mdea.mdea_armo_repo;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.ods.ods_armo_repo;
+import mx.org.inegi.sistemacaptura.armonizacion.repository.pertinencias.pertinencia_armo_repo;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.mdea.mdea_armo_enty;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.ods.ods_armo_enty;
+import mx.org.inegi.sistemacaptura.armonizacion.entity.pertinencias.pertinencia_armo_enty;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
@@ -42,6 +59,12 @@ public class variables_armo_service_impl implements variables_armo_service {
 
     @Autowired
     private variables_armo_repo variablesArmoRepo;
+
+    @Autowired
+    private fuentes_armo_repository fuentesArmoRepo;
+
+    @Autowired
+    private tickets_variables_repo ticketsRepository;
 
     @Autowired
     private clasificaciones_armo_service clasificacionesService;
@@ -68,6 +91,12 @@ public class variables_armo_service_impl implements variables_armo_service {
     private ods_repo odsRepository;
     @Autowired
     private pertinencia_repo pertinenciaRepository;
+    @Autowired
+    private mdea_armo_repo mdeaArmoRepository;
+    @Autowired
+    private ods_armo_repo odsArmoRepository;
+    @Autowired
+    private pertinencia_armo_repo pertinenciaArmoRepository;
 
     @Override
     public Optional<variables_armo_dto> obtenerPorIdA(String idA) {
@@ -114,8 +143,9 @@ public class variables_armo_service_impl implements variables_armo_service {
     }
 
     @Override
+    @Transactional
     public variables_armo_dto actualizarValidacion(String idA, Boolean validada) {
-        variables_armo_enty variable = variablesArmoRepo.findById(idA)
+        variables_armo_enty variable = variablesArmoRepo.buscarParaActualizar(idA)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "No existe la variable en armonizacion con id_a: " + idA));
 
@@ -129,6 +159,53 @@ public class variables_armo_service_impl implements variables_armo_service {
                 .stream()
                 .map(this::convertirA_DTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> moverVariablesDeFuente(variable_movimiento_fuente_dto dto) {
+        if (dto == null || dto.getIdFuenteDestino() == null
+                || dto.getIdFuenteDestino().trim().isEmpty()
+                || dto.getIdsVariables() == null || dto.getIdsVariables().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Selecciona variables y una fuente destino");
+        }
+        String destino = dto.getIdFuenteDestino().trim();
+        fuentes_armo_enty fuenteDestino = fuentesArmoRepo.findByIdFuente(destino)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "La fuente destino no existe en Armonización"));
+        Set<String> ids = new LinkedHashSet<>(dto.getIdsVariables());
+        if (ids.size() != dto.getIdsVariables().size()
+                || ids.stream().anyMatch(id -> id == null || id.trim().isEmpty())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "La selección contiene identificadores vacíos o repetidos");
+        }
+        List<variables_armo_enty> variables = new ArrayList<>();
+        for (String idA : ids) {
+            variables_armo_enty variable = variablesArmoRepo.buscarParaActualizar(idA)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "No existe la variable armonizada " + idA));
+            variables_armo_repo.comprobarRevision(variable);
+            if (!fuenteDestino.getAcronimo().equals(variable.getAcronimo())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "La variable " + idA + " pertenece a otro proceso de producción");
+            }
+            if (destino.equals(variable.getIdFuente())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "La variable " + idA + " ya está en la fuente destino");
+            }
+            variables.add(variable);
+        }
+        for (variables_armo_enty variable : variables) {
+            variable.setIdFuente(destino);
+        }
+        variablesArmoRepo.saveAll(variables);
+        variablesArmoRepo.flush();
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("totalMovidas", variables.size());
+        respuesta.put("idFuenteDestino", destino);
+        respuesta.put("message", variables.size() + " variable(s) movida(s) correctamente en Armonización");
+        return respuesta;
     }
 
     @Override
@@ -169,7 +246,9 @@ public class variables_armo_service_impl implements variables_armo_service {
     }
 
     @Override
+    @Transactional
     public variables_armo_dto guardarVariable(variables_armo_dto dto) {
+        variablesArmoRepo.exigirEditable(dto.getIdA());
         if (dto.getValidada() == null) {
             dto.setValidada(false);
         }
@@ -177,11 +256,40 @@ public class variables_armo_service_impl implements variables_armo_service {
         dto.setClasificacion(variablesArmoRepo.tieneClasificacionOClasificador(dto.getIdA()));
         variables_armo_enty entity = convertirA_Entity(dto);
         variables_armo_enty guardada = variablesArmoRepo.save(entity);
+        copiarRelacionesSeleccion(dto.getIdA());
+        guardada.setMdea(mdeaArmoRepository.countByIdA(dto.getIdA()) > 0);
+        guardada.setOds(odsArmoRepository.countByIdA(dto.getIdA()) > 0);
         return convertirA_DTO(guardada);
     }
 
+    private void copiarRelacionesSeleccion(String idA) {
+        if (mdeaArmoRepository.countByIdA(idA) == 0) {
+            mdeaRepository.findByIdA(idA).forEach(origen -> {
+                mdea_armo_enty destino = new mdea_armo_enty();
+                BeanUtils.copyProperties(origen, destino, "idUnique", "idS");
+                mdeaArmoRepository.save(destino);
+            });
+        }
+        if (odsArmoRepository.countByIdA(idA) == 0) {
+            odsRepository.findByIdA(idA).forEach(origen -> {
+                ods_armo_enty destino = new ods_armo_enty();
+                BeanUtils.copyProperties(origen, destino, "idUnique", "idS");
+                odsArmoRepository.save(destino);
+            });
+        }
+        if (!pertinenciaArmoRepository.findByIdA(idA).isPresent()) {
+            pertinenciaRepository.findByIdA(idA).ifPresent(origen -> {
+                pertinencia_armo_enty destino = new pertinencia_armo_enty();
+                BeanUtils.copyProperties(origen, destino, "idUnique", "idS");
+                pertinenciaArmoRepository.save(destino);
+            });
+        }
+    }
+
     @Override
+    @Transactional
     public variables_armo_dto actualizarVariable(String idA, variables_armo_dto dto) {
+        variablesArmoRepo.exigirEditable(idA);
         variables_armo_enty existente = variablesArmoRepo.findById(idA)
                 .orElseThrow(() -> new RuntimeException(
                         "La variable no existe en armonizacion con id_a: " + idA));
@@ -195,7 +303,7 @@ public class variables_armo_service_impl implements variables_armo_service {
         existente.setPregunta(dto.getPregunta());
         existente.setDefinicion(dto.getDefinicion());
         existente.setUniverso(dto.getUniverso());
-        existente.setAnioReferencia(dto.getAnioReferencia());
+        existente.setAnioReferencia(anioParaEntidad(dto.getAnioReferencia()));
         existente.setTematica(dto.getTematica());
         existente.setTema1(dto.getTema1());
         existente.setSubtema1(dto.getSubtema1());
@@ -215,12 +323,29 @@ public class variables_armo_service_impl implements variables_armo_service {
     }
 
     @Override
+    @Transactional
     public void eliminarVariable(String idA) {
+        variablesArmoRepo.exigirEditable(idA);
         if (!variablesArmoRepo.existsById(idA)) {
             throw new RuntimeException("No existe la variable con id_a: " + idA);
         }
 
         variablesArmoRepo.deleteById(idA);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarVariableDesdeValidacion(String idA) {
+        variables_armo_enty variable = variablesArmoRepo.buscarParaActualizar(idA)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "No existe la variable en armonización con id_a: " + idA));
+        variables_armo_repo.comprobarRevision(variable);
+        // Los tickets no tienen borrado en cascada. Las demás relaciones
+        // de Armonización sí dependen de esta variable mediante ON DELETE CASCADE.
+        ticketsRepository.deleteAll(ticketsRepository.findByIdAOrderByFechaCreacionDesc(idA));
+        ticketsRepository.flush();
+        variablesArmoRepo.deleteById(idA);
+        variablesArmoRepo.flush();
     }
 
     @Override
@@ -240,7 +365,7 @@ public class variables_armo_service_impl implements variables_armo_service {
                 entity.getPregunta(),
                 entity.getDefinicion(),
                 entity.getUniverso(),
-                entity.getAnioReferencia(),
+                anioParaDto(entity.getAnioReferencia()),
                 entity.getTematica(),
                 entity.getTema1(),
                 entity.getSubtema1(),
@@ -269,7 +394,7 @@ public class variables_armo_service_impl implements variables_armo_service {
                 dto.getPregunta(),
                 dto.getDefinicion(),
                 dto.getUniverso(),
-                dto.getAnioReferencia(),
+                anioParaEntidad(dto.getAnioReferencia()),
                 dto.getTematica(),
                 dto.getTema1(),
                 dto.getSubtema1(),
@@ -284,5 +409,13 @@ public class variables_armo_service_impl implements variables_armo_service {
                 dto.getComentarioS(),
                 dto.getComentarioA(),
                 dto.getValidada());
+    }
+
+    private String anioParaEntidad(Object anio) {
+        return anio == null ? null : anio.toString();
+    }
+
+    private Object anioParaDto(String anio) {
+        return anio != null && anio.matches("\\d{4}") ? Integer.valueOf(anio) : anio;
     }
 }

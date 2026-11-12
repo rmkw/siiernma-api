@@ -11,12 +11,14 @@ package mx.org.inegi.sistemacaptura.armonizacion.controller.variables;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_busqueda_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.variables_detalle_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.variables.validacion_variable_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.service.variables.variables_armo_service;
+import mx.org.inegi.sistemacaptura.entity.variables.variable_movimiento_fuente_dto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,12 @@ public class variables_armo_controller {
             @RequestParam String idFuente) {
         return ResponseEntity.ok(
                 variablesArmoService.obtenerPorIdFuente(idFuente));
+    }
+
+    @PutMapping("/mover-fuente")
+    public ResponseEntity<Map<String, Object>> moverVariablesDeFuente(
+            @RequestBody variable_movimiento_fuente_dto dto) {
+        return ResponseEntity.ok(variablesArmoService.moverVariablesDeFuente(dto));
     }
 
     @GetMapping("/buscar")
@@ -147,6 +155,13 @@ public class variables_armo_controller {
                     .body("Error al eliminar la variable en armonizacion: "
                             + e.getMessage());
         }
+    }
+
+    @DeleteMapping("/{idA}/desde-validacion")
+    public ResponseEntity<?> eliminarVariableDesdeValidacion(@PathVariable String idA) {
+        variablesArmoService.eliminarVariableDesdeValidacion(idA);
+        return ResponseEntity.ok(Collections.singletonMap("message",
+                "Variable de Armonización y relaciones eliminadas. Selección y fuente intactas."));
     }
 
     @GetMapping("/count")
