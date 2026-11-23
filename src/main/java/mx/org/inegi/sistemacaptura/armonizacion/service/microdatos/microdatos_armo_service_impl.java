@@ -29,6 +29,13 @@ public class microdatos_armo_service_impl implements microdatos_armo_service {
     private variables_armo_repo variablesArmoRepo;
 
     @Override
+    @Transactional(readOnly = true)
+    public String obtenerUrlAccesoPorFuente(String idFuente) {
+        return microdatosArmoRepo.buscarUrlsAccesoPorFuente(idFuente)
+                .stream().findFirst().orElse("");
+    }
+
+    @Override
     @Transactional
     public microdatos_armo_dto guardarMicrodato(microdatos_armo_dto dto) {
         validarMicrodato(dto);

@@ -2,7 +2,7 @@ package mx.org.inegi.sistemacaptura;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 import mx.org.inegi.sistemacaptura.config.DatabaseTables;
 import mx.org.inegi.sistemacaptura.service.import_excel.import_excel_service;
 import org.springframework.data.jpa.repository.Query;

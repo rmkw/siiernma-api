@@ -3,8 +3,8 @@ package mx.org.inegi.sistemacaptura;
 import java.io.FileInputStream;
 import java.sql.*;
 import java.util.*;
-import javax.persistence.*;
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.*;
+import jakarta.persistence.metamodel.EntityType;
 import mx.org.inegi.sistemacaptura.config.DatabaseTables;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -29,7 +29,6 @@ public class DeploymentReadOnlyCheck {
             Properties h = new Properties();
             h.setProperty("hibernate.hbm2ddl.auto", "none");
             h.setProperty("hibernate.show_sql", "false");
-            h.setProperty("hibernate.dialect", config.getProperty("hibernate.dialect"));
             factory.setJpaProperties(h);
             factory.afterPropertiesSet();
             try {

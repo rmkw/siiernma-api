@@ -9,7 +9,7 @@
  */
 package mx.org.inegi.sistemacaptura.entity.mdea.catalogo;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "mdea_temas", schema = "catalogos")

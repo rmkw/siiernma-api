@@ -9,7 +9,7 @@ package mx.org.inegi.sistemacaptura.config;
  * @author LUIS.CASTANEDAL
  */
 import java.util.Properties;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,8 +82,6 @@ public class PersistenceConfig implements EnvironmentAware {
 
     private Properties hibernateProperties() {
         Properties properties = new Properties();
-        properties.put("hibernate.dialect",
-                environment.getRequiredProperty("hibernate.dialect"));
         properties.put("hibernate.show_sql",
                 environment.getRequiredProperty("hibernate.show_sql"));
         properties.put("hibernate.format_sql",

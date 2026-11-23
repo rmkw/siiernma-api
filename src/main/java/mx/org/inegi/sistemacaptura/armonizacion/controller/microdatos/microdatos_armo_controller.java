@@ -10,6 +10,7 @@ package mx.org.inegi.sistemacaptura.armonizacion.controller.microdatos;
  */
 
 import java.util.List;
+import java.util.Map;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.microdatos.microdatos_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.service.microdatos.microdatos_armo_service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,5 +75,12 @@ public class microdatos_armo_controller {
     public ResponseEntity<List<microdatos_armo_dto>> obtenerPorIdA(
             @PathVariable String idA) {
         return ResponseEntity.ok(microdatosArmoService.obtenerPorIdA(idA));
+    }
+
+    @GetMapping("/fuente/{idFuente}/url-acceso")
+    public ResponseEntity<Map<String, String>> obtenerUrlAccesoPorFuente(
+            @PathVariable String idFuente) {
+        return ResponseEntity.ok(Map.of(
+                "urlAcceso", microdatosArmoService.obtenerUrlAccesoPorFuente(idFuente)));
     }
 }

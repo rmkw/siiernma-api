@@ -11,7 +11,7 @@ import mx.org.inegi.sistemacaptura.config.DatabaseTables;
  * @author LUIS.CASTANEDAL
  */
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = DatabaseTables.MDEA_S, schema = DatabaseTables.SELECCION)

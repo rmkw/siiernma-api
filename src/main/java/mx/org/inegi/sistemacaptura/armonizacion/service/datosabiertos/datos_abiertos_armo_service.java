@@ -21,4 +21,6 @@ public interface datos_abiertos_armo_service {
     void eliminarDatoAbierto(Integer idUnique);
 
     List<datos_abiertos_armo_dto> obtenerPorIdA(String idA);
+
+    String obtenerUrlAccesoPorFuente(String idFuente);
 }

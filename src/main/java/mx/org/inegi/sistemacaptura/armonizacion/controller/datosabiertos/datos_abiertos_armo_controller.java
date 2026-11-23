@@ -10,6 +10,7 @@ package mx.org.inegi.sistemacaptura.armonizacion.controller.datosabiertos;
  */
 
 import java.util.List;
+import java.util.Map;
 import mx.org.inegi.sistemacaptura.armonizacion.entity.datosabiertos.datos_abiertos_armo_dto;
 import mx.org.inegi.sistemacaptura.armonizacion.service.datosabiertos.datos_abiertos_armo_service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,5 +77,12 @@ public class datos_abiertos_armo_controller {
             @PathVariable String idA) {
         return ResponseEntity.ok(
                 datosAbiertosArmoService.obtenerPorIdA(idA));
+    }
+
+    @GetMapping("/fuente/{idFuente}/url-acceso")
+    public ResponseEntity<Map<String, String>> obtenerUrlAccesoPorFuente(
+            @PathVariable String idFuente) {
+        return ResponseEntity.ok(Map.of(
+                "urlAcceso", datosAbiertosArmoService.obtenerUrlAccesoPorFuente(idFuente)));
     }
 }

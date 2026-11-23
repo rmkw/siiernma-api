@@ -1,9 +1,9 @@
 package mx.org.inegi.sistemacaptura.armonizacion.repository.visor;
 
 import java.util.*;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
 @Repository
