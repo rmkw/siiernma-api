@@ -30,6 +30,13 @@ public class datos_abiertos_armo_service_impl
     private variables_armo_repo variablesArmoRepo;
 
     @Override
+    @Transactional(readOnly = true)
+    public String obtenerUrlAccesoPorFuente(String idFuente) {
+        return datosAbiertosArmoRepo.buscarUrlsAccesoPorFuente(idFuente)
+                .stream().findFirst().orElse("");
+    }
+
+    @Override
     @Transactional
     public datos_abiertos_armo_dto guardarDatoAbierto(
             datos_abiertos_armo_dto dto) {

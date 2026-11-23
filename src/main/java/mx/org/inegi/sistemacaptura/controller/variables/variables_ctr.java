@@ -109,7 +109,7 @@ public class variables_ctr {
         } catch (ResponseStatusException e) {
             Map<String, Object> error = new java.util.HashMap<String, Object>();
             error.put("message", e.getReason());
-            return ResponseEntity.status(e.getStatus()).body(error);
+            return ResponseEntity.status(e.getStatusCode()).body(error);
         }
     }
 

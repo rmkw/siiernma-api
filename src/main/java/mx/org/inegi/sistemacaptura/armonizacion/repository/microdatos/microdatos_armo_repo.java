@@ -22,6 +22,12 @@ public interface microdatos_armo_repo
 
     List<microdatos_armo_enty> findByIdAOrderByIdUniqueAsc(String idA);
 
+    @Query("SELECT m.urlAcceso FROM microdatos_armo_enty m, variables_armo_enty v "
+            + "WHERE m.idA = v.idA AND v.idFuente = :idFuente "
+            + "AND m.urlAcceso IS NOT NULL AND TRIM(m.urlAcceso) <> '' "
+            + "ORDER BY m.idUnique DESC")
+    List<String> buscarUrlsAccesoPorFuente(@Param("idFuente") String idFuente);
+
     long countByIdA(String idA);
 
     boolean existsByIdA(String idA);

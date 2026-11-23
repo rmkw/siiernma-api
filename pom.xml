@@ -15,16 +15,26 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
 
-        <spring.version>5.3.39</spring.version>
-        <spring-security.version>5.8.16</spring-security.version>
-        <spring-data-jpa.version>2.7.18</spring-data-jpa.version>
-        <hibernate.version>5.6.15.Final</hibernate.version>
+        <spring.version>6.2.19</spring.version>
+        <spring-security.version>6.5.11</spring-security.version>
+        <spring-data-jpa.version>3.5.13</spring-data-jpa.version>
+        <hibernate.version>6.6.59.Final</hibernate.version>
         <jackson.version>2.17.3</jackson.version>
         <postgresql.version>42.7.4</postgresql.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>${spring.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <developers>
 		<developer>
 			<name>Ing. Luis Gerardo Castañeda López</name>
@@ -69,9 +79,9 @@
             <version>${spring-data-jpa.version}</version>
         </dependency>
 
-        <!-- Hibernate compatible con javax.persistence y Java 8 -->
+        <!-- Hibernate compatible con Jakarta Persistence -->
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
@@ -104,17 +114,17 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- Validaciones: @NotNull, @NotBlank, etc. con javax -->
+        <!-- Validaciones Jakarta -->
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>2.0.1.Final</version>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.2.5.Final</version>
+            <version>8.0.6.Final</version>
         </dependency>
         
         <!-- Lectura de archivos Excel .xlsx -->
@@ -124,20 +134,11 @@
             <version>5.2.5</version>
         </dependency>
 
-        <!-- Soporte multipart/form-data para Spring MVC clasico -->
+        <!-- Tomcat 10.1 proporciona esta API durante la ejecucion -->
         <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.5</version>
-        </dependency>
-
-        
-
-        <!-- Tomcat 9 proporciona esta API durante la ejecucion -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -189,8 +190,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>${maven.compiler.release}</release>
+                    <parameters>true</parameters>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

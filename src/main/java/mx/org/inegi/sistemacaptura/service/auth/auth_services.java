@@ -9,8 +9,8 @@ package mx.org.inegi.sistemacaptura.service.auth;
  * @author LUIS.CASTANEDAL
  */
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import mx.org.inegi.sistemacaptura.entity.usuario.usuario_enty;
 import mx.org.inegi.sistemacaptura.repository.usuario.usuario_repo;
 import org.springframework.beans.factory.annotation.Autowired;

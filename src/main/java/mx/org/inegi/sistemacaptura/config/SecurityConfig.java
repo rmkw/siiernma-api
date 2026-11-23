@@ -2,50 +2,51 @@ package mx.org.inegi.sistemacaptura.config;
 
 import java.util.Arrays;
 import mx.org.inegi.sistemacaptura.service.auth.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
+    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .cors().configurationSource(corsConfigurationSource())
-                .and()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/import-excel/**")
-                .access("hasRole('IMPORT') or hasRole('ADMIN') or hasRole('ROOT') or (hasRole('USER') and !hasRole('ARMO'))")
-                .antMatchers(HttpMethod.PUT, "/api/variables/revision-prioridad/*", "/api/variables/revision-prioridad-masiva").hasRole("REVISOR")
-                .antMatchers(HttpMethod.DELETE, "/api/armo/variables/*/desde-validacion").hasRole("VALIDA")
-                .antMatchers(HttpMethod.POST, "/api/catalog/temas-subtemas/temas").hasRole("ARMO")
-                .antMatchers(HttpMethod.POST, "/api/catalog/temas-subtemas/subtemas").hasRole("ARMO")
-                .antMatchers(HttpMethod.PUT, "/api/armo/variables/*/validacion").hasRole("VALIDA")
-                .antMatchers(
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .securityContext(context -> context.securityContextRepository(securityContextRepository()))
+                .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(HttpMethod.POST, "/api/import-excel/**")
+                .access(new WebExpressionAuthorizationManager("hasRole('IMPORT') or hasRole('ADMIN') or hasRole('ROOT') or (hasRole('USER') and !hasRole('ARMO'))"))
+                .requestMatchers(HttpMethod.PUT, "/api/variables/revision-prioridad/*", "/api/variables/revision-prioridad-masiva").hasRole("REVISOR")
+                .requestMatchers(HttpMethod.DELETE, "/api/armo/variables/*/desde-validacion").hasRole("VALIDA")
+                .requestMatchers(HttpMethod.POST, "/api/catalog/temas-subtemas/temas").hasRole("ARMO")
+                .requestMatchers(HttpMethod.POST, "/api/catalog/temas-subtemas/subtemas").hasRole("ARMO")
+                .requestMatchers(HttpMethod.PUT, "/api/armo/variables/*/validacion").hasRole("VALIDA")
+                .requestMatchers(
                         "/api/auth/**",
                         "/api/prueba/**",
                         "/api/conexion",
@@ -65,23 +66,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/armo/**",
                         "/api/armo/fuentes/**"
                 ).permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .sessionManagement()
+                .anyRequest().authenticated())
+                .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .maximumSessions(1)
-                .maxSessionsPreventsLogin(false);
+                .maxSessionsPreventsLogin(false));
+        return http.build();
     }
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(provider);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
     }
 
     @Bean

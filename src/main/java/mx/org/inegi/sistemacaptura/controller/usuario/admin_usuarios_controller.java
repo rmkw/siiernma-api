@@ -3,8 +3,8 @@ package mx.org.inegi.sistemacaptura.controller.usuario;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import mx.org.inegi.sistemacaptura.entity.usuario.clave_admin_dto;
 import mx.org.inegi.sistemacaptura.entity.usuario.usuario_admin_dto;
 import mx.org.inegi.sistemacaptura.entity.usuario.usuario_admin_request_dto;
@@ -107,7 +107,7 @@ public class admin_usuarios_controller {
         try {
             return ResponseEntity.ok(operacion.ejecutar());
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatus()).body(
+            return ResponseEntity.status(e.getStatusCode()).body(
                     Collections.singletonMap("message", e.getReason()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(

@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import mx.org.inegi.sistemacaptura.armonizacion.repository.visor.visor_variables_repo;
 import mx.org.inegi.sistemacaptura.armonizacion.service.visor.visor_variables_service_impl;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -78,7 +78,7 @@ public class VisorReadOnlyCheck {
             Properties hibernate = new Properties();
             hibernate.setProperty("hibernate.hbm2ddl.auto", "none");
             hibernate.setProperty("hibernate.show_sql", "false");
-            hibernate.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL95Dialect");
+            hibernate.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
             factory.setJpaProperties(hibernate);
             factory.afterPropertiesSet();
             EntityManager em = factory.getObject().createEntityManager();
@@ -128,7 +128,7 @@ public class VisorReadOnlyCheck {
                     try {
                         service.listar(params(invalid));
                         throw new AssertionError("Expected 400: " + invalid[0]);
-                    } catch (ResponseStatusException ex) { check(ex.getStatus().value() == 400, "HTTP status"); }
+                    } catch (ResponseStatusException ex) { check(ex.getStatusCode().value() == 400, "HTTP status"); }
                 }
                 Map<String, Object> options = service.filtros(params());
                 check(options.containsKey("unidades") && options.containsKey("subtema2"), "Filter options");

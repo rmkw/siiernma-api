@@ -21,4 +21,6 @@ public interface microdatos_armo_service {
     void eliminarMicrodato(Integer idUnique);
 
     List<microdatos_armo_dto> obtenerPorIdA(String idA);
+
+    String obtenerUrlAccesoPorFuente(String idFuente);
 }

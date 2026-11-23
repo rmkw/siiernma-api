@@ -22,6 +22,12 @@ public interface datos_abiertos_armo_repo
 
     List<datos_abiertos_armo_enty> findByIdAOrderByIdUniqueAsc(String idA);
 
+    @Query("SELECT d.urlAcceso FROM datos_abiertos_armo_enty d, variables_armo_enty v "
+            + "WHERE d.idA = v.idA AND v.idFuente = :idFuente "
+            + "AND d.urlAcceso IS NOT NULL AND TRIM(d.urlAcceso) <> '' "
+            + "ORDER BY d.idUnique DESC")
+    List<String> buscarUrlsAccesoPorFuente(@Param("idFuente") String idFuente);
+
     @Query("SELECT COUNT(d) FROM datos_abiertos_armo_enty d "
             + "WHERE d.idA = :idA "
             + "AND LOWER(TRIM(d.urlAcceso)) = LOWER(TRIM(:urlAcceso)) "

@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import mx.org.inegi.sistemacaptura.entity.usuario.usuario_admin_dto;
 import mx.org.inegi.sistemacaptura.entity.usuario.usuario_admin_request_dto;
 import mx.org.inegi.sistemacaptura.entity.usuario.usuario_enty;

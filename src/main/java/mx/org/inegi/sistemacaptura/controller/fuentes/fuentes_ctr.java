@@ -10,7 +10,7 @@ package mx.org.inegi.sistemacaptura.controller.fuentes;
  */
 import java.util.Collections;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import mx.org.inegi.sistemacaptura.entity.fuentes.fuentes_dto;
 import mx.org.inegi.sistemacaptura.entity.fuentes.fuentes_enty;
 import mx.org.inegi.sistemacaptura.entity.usuario.clave_admin_dto;

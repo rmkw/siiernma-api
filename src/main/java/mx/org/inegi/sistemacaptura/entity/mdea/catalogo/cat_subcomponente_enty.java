@@ -9,7 +9,7 @@ package mx.org.inegi.sistemacaptura.entity.mdea.catalogo;
  * @author LUIS.CASTANEDAL
  */
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "mdea_subcomponentes", schema = "catalogos")
